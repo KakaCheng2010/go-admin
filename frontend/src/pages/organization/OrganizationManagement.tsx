@@ -287,7 +287,7 @@ const OrganizationManagement: React.FC = () => {
   ];
 
   return (
-    <div>
+    <Card>
      
         <div style={{ marginBottom: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Title level={4} style={{ margin: 0 }}>组织管理</Title>
@@ -430,7 +430,7 @@ const OrganizationManagement: React.FC = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </div>
+    </Card>
   );
 };
 

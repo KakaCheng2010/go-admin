@@ -7,10 +7,10 @@ import (
 )
 
 type User struct {
-	ID          uint           `json:"id" gorm:"primaryKey"`
+	ID          int64          `json:"id,string" gorm:"primaryKey"`
 	Username    string         `json:"username" gorm:"uniqueIndex;not null" binding:"required"`
 	Password    string         `json:"-" gorm:"not null" binding:"required"`
-	Email       string         `json:"email" gorm:"uniqueIndex"`
+	Email       *string        `json:"email" gorm:"uniqueIndex"`
 	Phone       string         `json:"phone"`
 	RealName    string         `json:"real_name"`
 	Avatar      string         `json:"avatar"`
@@ -26,11 +26,11 @@ type User struct {
 }
 
 type UserRole struct {
-	UserID uint `json:"user_id" gorm:"primaryKey"`
-	RoleID uint `json:"role_id" gorm:"primaryKey"`
+	UserID int64 `json:"user_id,string" gorm:"primaryKey"`
+	RoleID int64 `json:"role_id,string" gorm:"primaryKey"`
 }
 
 type UserOrganization struct {
-	UserID         uint `json:"user_id" gorm:"primaryKey"`
-	OrganizationID uint `json:"organization_id" gorm:"primaryKey"`
+	UserID         int64 `json:"user_id,string" gorm:"primaryKey"`
+	OrganizationID int64 `json:"organization_id,string" gorm:"primaryKey"`
 }

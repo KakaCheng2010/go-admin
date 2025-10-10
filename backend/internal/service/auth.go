@@ -44,6 +44,9 @@ func (s *AuthService) Register(user *model.User) error {
 		return errors.New("用户名已存在")
 	}
 
+	// 生成雪花ID
+	user.ID = utils.GenerateID()
+
 	// 加密密码
 	hashedPassword, err := utils.HashPassword(user.Password)
 	if err != nil {
@@ -54,7 +57,7 @@ func (s *AuthService) Register(user *model.User) error {
 	return s.db.Create(user).Error
 }
 
-func CheckUserPermission(userID uint, path, method string) (bool, error) {
+func CheckUserPermission(userID int64, path, method string) (bool, error) {
 	// 这里实现权限检查逻辑
 	// 可以根据用户的角色和菜单权限来判断
 	return true, nil

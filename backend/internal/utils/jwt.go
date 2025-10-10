@@ -9,12 +9,12 @@ import (
 )
 
 type Claims struct {
-	UserID   uint   `json:"user_id"`
+	UserID   int64  `json:"user_id"`
 	Username string `json:"username"`
 	jwt.RegisteredClaims
 }
 
-func GenerateJWT(userID uint, username string, cfg *config.Config) (string, error) {
+func GenerateJWT(userID int64, username string, cfg *config.Config) (string, error) {
 	claims := Claims{
 		UserID:   userID,
 		Username: username,

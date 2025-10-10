@@ -2,6 +2,7 @@ package service
 
 import (
 	"go-admin/internal/model"
+	"go-admin/internal/utils"
 
 	"gorm.io/gorm"
 )
@@ -15,10 +16,12 @@ func NewRoleService(db *gorm.DB) *RoleService {
 }
 
 func (s *RoleService) CreateRole(role *model.Role) error {
+	// 生成雪花ID
+	role.ID = utils.GenerateID()
 	return s.db.Create(role).Error
 }
 
-func (s *RoleService) GetRoleByID(id uint) (*model.Role, error) {
+func (s *RoleService) GetRoleByID(id int64) (*model.Role, error) {
 	var role model.Role
 	err := s.db.Preload("Users").Preload("Menus").First(&role, id).Error
 	return &role, err
@@ -28,7 +31,7 @@ func (s *RoleService) UpdateRole(role *model.Role) error {
 	return s.db.Save(role).Error
 }
 
-func (s *RoleService) DeleteRole(id uint) error {
+func (s *RoleService) DeleteRole(id int64) error {
 	return s.db.Delete(&model.Role{}, id).Error
 }
 
@@ -38,7 +41,7 @@ func (s *RoleService) ListRoles() ([]model.Role, error) {
 	return roles, err
 }
 
-func (s *RoleService) AssignMenus(roleID uint, menuIDs []uint) error {
+func (s *RoleService) AssignMenus(roleID int64, menuIDs []int64) error {
 	var role model.Role
 	if err := s.db.First(&role, roleID).Error; err != nil {
 		return err

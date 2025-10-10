@@ -20,7 +20,7 @@ func NewMenuHandler(menuService *service.MenuService) *MenuHandler {
 type CreateMenuRequest struct {
 	Name      string `json:"name" binding:"required"`
 	Code      string `json:"code" binding:"required"`
-	ParentID  *uint  `json:"parent_id"`
+	ParentID  *int64 `json:"parent_id"`
 	Path      string `json:"path"`
 	Component string `json:"component"`
 	Icon      string `json:"icon"`
@@ -32,7 +32,7 @@ type CreateMenuRequest struct {
 type UpdateMenuRequest struct {
 	Name      string `json:"name"`
 	Code      string `json:"code"`
-	ParentID  *uint  `json:"parent_id"`
+	ParentID  *int64 `json:"parent_id"`
 	Path      string `json:"path"`
 	Component string `json:"component"`
 	Icon      string `json:"icon"`
@@ -69,13 +69,13 @@ func (h *MenuHandler) CreateMenu(c *gin.Context) {
 }
 
 func (h *MenuHandler) GetMenu(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的菜单ID"})
 		return
 	}
 
-	menu, err := h.menuService.GetMenuByID(uint(id))
+	menu, err := h.menuService.GetMenuByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "菜单不存在"})
 		return
@@ -85,7 +85,7 @@ func (h *MenuHandler) GetMenu(c *gin.Context) {
 }
 
 func (h *MenuHandler) UpdateMenu(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的菜单ID"})
 		return
@@ -97,7 +97,7 @@ func (h *MenuHandler) UpdateMenu(c *gin.Context) {
 		return
 	}
 
-	menu, err := h.menuService.GetMenuByID(uint(id))
+	menu, err := h.menuService.GetMenuByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "菜单不存在"})
 		return
@@ -122,13 +122,13 @@ func (h *MenuHandler) UpdateMenu(c *gin.Context) {
 }
 
 func (h *MenuHandler) DeleteMenu(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的菜单ID"})
 		return
 	}
 
-	if err := h.menuService.DeleteMenu(uint(id)); err != nil {
+	if err := h.menuService.DeleteMenu(id); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "删除失败"})
 		return
 	}

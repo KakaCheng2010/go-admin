@@ -1,9 +1,9 @@
 import api from './api';
 
 export interface User {
-  id: number;
+  id: string; // 雪花ID
   username: string;
-  email: string;
+  email?: string;
   phone: string;
   real_name: string;
   avatar: string;
@@ -18,6 +18,7 @@ export interface CreateUserRequest {
   email?: string;
   phone?: string;
   real_name?: string;
+  organization_id?: string;
   status?: number;
 }
 
@@ -36,16 +37,21 @@ export interface UserListResponse {
 }
 
 export const userService = {
-  getUsers: async (page = 1, pageSize = 10, organizationId?: number): Promise<UserListResponse> => {
+  getUsers: async (page = 1, pageSize = 10, organizationId?: number, organizationPath?: string, searchParams?: any): Promise<UserListResponse> => {
     const params: any = { page, page_size: pageSize };
-    if (organizationId) {
+    if (organizationPath) {
+      params.organization_path = organizationPath;
+    } else if (organizationId) {
       params.organization_id = organizationId;
+    }
+    if (searchParams) {
+      Object.assign(params, searchParams);
     }
     const response = await api.get('/users', { params });
     return response.data;
   },
 
-  getUser: async (id: number): Promise<User> => {
+  getUser: async (id: string): Promise<User> => {
     const response = await api.get(`/users/${id}`);
     return response.data;
   },
@@ -55,16 +61,33 @@ export const userService = {
     return response.data.user;
   },
 
-  updateUser: async (id: number, data: UpdateUserRequest): Promise<User> => {
+  updateUser: async (id: string, data: UpdateUserRequest): Promise<User> => {
     const response = await api.put(`/users/${id}`, data);
     return response.data.user;
   },
 
-  deleteUser: async (id: number): Promise<void> => {
+  deleteUser: async (id: string): Promise<void> => {
     await api.delete(`/users/${id}`);
   },
 
-  assignRoles: async (id: number, roleIds: number[]): Promise<void> => {
+  batchDeleteUsers: async (ids: string[]): Promise<void> => {
+    await api.delete('/users/batch', { data: { ids } });
+  },
+
+  importUsers: async (file: File): Promise<void> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    await api.post('/users/import', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  },
+
+  exportUsers: async (): Promise<Blob> => {
+    const response = await api.get('/users/export', { responseType: 'blob' });
+    return response.data;
+  },
+
+  assignRoles: async (id: string, roleIds: string[]): Promise<void> => {
     await api.post(`/users/${id}/roles`, { role_ids: roleIds });
   },
 };

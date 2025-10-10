@@ -57,13 +57,13 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 }
 
 func (h *RoleHandler) GetRole(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的角色ID"})
 		return
 	}
 
-	role, err := h.roleService.GetRoleByID(uint(id))
+	role, err := h.roleService.GetRoleByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "角色不存在"})
 		return
@@ -73,7 +73,7 @@ func (h *RoleHandler) GetRole(c *gin.Context) {
 }
 
 func (h *RoleHandler) UpdateRole(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的角色ID"})
 		return
@@ -85,7 +85,7 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 		return
 	}
 
-	role, err := h.roleService.GetRoleByID(uint(id))
+	role, err := h.roleService.GetRoleByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "角色不存在"})
 		return
@@ -106,13 +106,13 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 }
 
 func (h *RoleHandler) DeleteRole(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的角色ID"})
 		return
 	}
 
-	if err := h.roleService.DeleteRole(uint(id)); err != nil {
+	if err := h.roleService.DeleteRole(id); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "删除失败"})
 		return
 	}
@@ -131,14 +131,14 @@ func (h *RoleHandler) ListRoles(c *gin.Context) {
 }
 
 func (h *RoleHandler) AssignMenus(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的角色ID"})
 		return
 	}
 
 	var req struct {
-		MenuIDs []uint `json:"menu_ids" binding:"required"`
+		MenuIDs []int64 `json:"menu_ids" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -146,7 +146,7 @@ func (h *RoleHandler) AssignMenus(c *gin.Context) {
 		return
 	}
 
-	if err := h.roleService.AssignMenus(uint(id), req.MenuIDs); err != nil {
+	if err := h.roleService.AssignMenus(id, req.MenuIDs); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "分配菜单失败"})
 		return
 	}

@@ -53,6 +53,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, rdb *redis.Client) *gin.Engine
 				users.GET("/:id", userHandler.GetUser)
 				users.PUT("/:id", userHandler.UpdateUser)
 				users.DELETE("/:id", userHandler.DeleteUser)
+				users.DELETE("/batch", userHandler.BatchDeleteUsers)
 				users.POST("/:id/roles", userHandler.AssignRoles)
 			}
 

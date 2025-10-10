@@ -58,19 +58,19 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         collapsible
         collapsed={collapsed}
         style={{
-          background: token.colorBgContainer,
+          background: ' #2b2f3a;',
         }}
       >
         <div style={{
-          height: 32,
-          margin: 16,
-          background: 'rgba(255, 255, 255, 0.2)',
-          borderRadius: 6,
+          height: 30,
+          margin: 10,
+          background: ' #2b2f3a;',
+          borderRadius: 0,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: token.colorText,
           fontWeight: 'bold',
+          color: '#ffffff',
         }}>
           {collapsed ? 'GA' : 'Go-Admin'}
         </div>
@@ -85,7 +85,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <AntLayout>
         <Header style={{
           padding: '0 16px',
-          background: token.colorBgContainer,
+          background: 'rgba(255, 255, 255, 0.2)',
+          height: 30,
+          margin: 10,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -96,8 +98,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             onClick={() => setCollapsed(!collapsed)}
             style={{
               fontSize: '16px',
-              width: 64,
-              height: 64,
+              width: 32,
+              height: 32,
             }}
           />
           <Dropdown
@@ -114,8 +116,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </Dropdown>
         </Header>
         <Content style={{
-          margin: '24px 16px',
-          padding: 24,
+          margin: '0px 0px',
+          padding: 10,
           minHeight: 280,
           background: token.colorBgContainer,
           borderRadius: token.borderRadiusLG,

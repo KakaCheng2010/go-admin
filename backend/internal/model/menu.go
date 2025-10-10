@@ -7,10 +7,10 @@ import (
 )
 
 type Menu struct {
-	ID        uint           `json:"id" gorm:"primaryKey"`
+	ID        int64          `json:"id,string" gorm:"primaryKey"`
 	Name      string         `json:"name" gorm:"not null" binding:"required"`
 	Code      string         `json:"code" gorm:"uniqueIndex;not null" binding:"required"`
-	ParentID  *uint          `json:"parent_id"`
+	ParentID  *int64         `json:"parent_id"`
 	Path      string         `json:"path"`
 	Component string         `json:"component"`
 	Icon      string         `json:"icon"`

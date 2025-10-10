@@ -7,7 +7,7 @@ import (
 )
 
 type Role struct {
-	ID          uint           `json:"id" gorm:"primaryKey"`
+	ID          int64          `json:"id,string" gorm:"primaryKey"`
 	Name        string         `json:"name" gorm:"not null" binding:"required"`
 	Code        string         `json:"code" gorm:"uniqueIndex;not null" binding:"required"`
 	Description string         `json:"description"`
@@ -23,6 +23,6 @@ type Role struct {
 }
 
 type RoleMenu struct {
-	RoleID uint `json:"role_id" gorm:"primaryKey"`
-	MenuID uint `json:"menu_id" gorm:"primaryKey"`
+	RoleID int64 `json:"role_id,string" gorm:"primaryKey"`
+	MenuID int64 `json:"menu_id,string" gorm:"primaryKey"`
 }

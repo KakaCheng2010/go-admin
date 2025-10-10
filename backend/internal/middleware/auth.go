@@ -62,7 +62,7 @@ func PermissionMiddleware() gin.HandlerFunc {
 		method := c.Request.Method
 
 		// 检查用户权限
-		hasPermission, err := service.CheckUserPermission(userID.(uint), path, method)
+		hasPermission, err := service.CheckUserPermission(userID.(int64), path, method)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "权限检查失败"})
 			c.Abort()

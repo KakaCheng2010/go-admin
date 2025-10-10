@@ -72,9 +72,13 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	user := &model.User{
 		Username: req.Username,
 		Password: req.Password,
-		Email:    req.Email,
+		//Email:    req.Email,
 		RealName: req.RealName,
 		Status:   1,
+	}
+
+	if req.Email != "" {
+		user.Email = &req.Email
 	}
 
 	if err := h.authService.Register(user); err != nil {
