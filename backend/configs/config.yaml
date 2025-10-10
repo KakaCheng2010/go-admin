@@ -1,0 +1,21 @@
+server:
+  port: "8080"
+  mode: "debug"
+
+database:
+  host: "81.70.179.86"
+  port: 15432
+  user: "postgres"
+  password: "qwe123-="
+  dbname: "go_admin"
+  sslmode: "disable"
+
+redis:
+  host: "81.70.179.86"
+  port: 16379
+  password: "qwe123-="
+  db: 0
+
+jwt:
+  secret: "your-secret-key-change-in-production"
+  expire_time: 24
