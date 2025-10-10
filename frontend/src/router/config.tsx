@@ -15,7 +15,7 @@ const UserManagement = lazy(() => import('../pages/user/UserManagement'));
 const OrganizationManagement = lazy(() => import('../pages/organization/OrganizationManagement'));
 const RoleManagement = lazy(() => import('../pages/role/RoleManagement'));
 const MenuManagement = lazy(() => import('../pages/menu/MenuManagement'));
-const DictManagement = lazy(() => import('../pages/dict/DictManagement'));
+const DictList = lazy(() => import('../pages/dict/DictList'));
 const Debug = lazy(() => import('../pages/Debug'));
 
 export interface RouteConfig {
@@ -64,11 +64,11 @@ export const routeConfigs: RouteConfig[] = [
     key: '/menus',
   },
   {
-    path: '/dicts',
-    component: DictManagement,
+    path: '/dict',
+    component: DictList,
     title: '字典管理',
     icon: <SettingOutlined />,
-    key: '/dicts',
+    key: '/dict',
   },
   {
     path: '/debug',

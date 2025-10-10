@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Table, Button, Space, Tag, message, Modal, Form, Input, InputNumber, Select } from 'antd';
+import { Card, Table, Button, Space, Tag, message, Modal, Form, Input, InputNumber, Select, TreeSelect } from 'antd';
 import {
   PlusOutlined,
   EditOutlined,
@@ -19,7 +19,7 @@ const MenuManagement: React.FC = () => {
     setLoading(true);
     try {
       const data = await menuService.getMenus();
-      setMenus(data);
+      setMenus(convertListToTree(data));
     } catch (error) {
       message.error('加载菜单列表失败');
     } finally {
@@ -43,7 +43,7 @@ const MenuManagement: React.FC = () => {
     form.setFieldsValue(menu);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     try {
       await menuService.deleteMenu(id);
       message.success('删除成功');
@@ -67,6 +67,69 @@ const MenuManagement: React.FC = () => {
     } catch (error: any) {
       message.error(error.response?.data?.error || '操作失败');
     }
+  };
+
+  // 将菜单转为 TreeSelect 所需结构
+  const menusToTreeSelect = (list: Menu[]): any[] => {
+    console.log('menusToTreeSelect', list);
+    const map = new Map<string, any>();
+    const roots: any[] = [];
+    list.forEach((m) => {
+      map.set(m.id, {
+        id: m.id,
+        name: m.name,
+        children: [],
+      });
+    });
+    list.forEach((m) => {
+      const node = map.get(m.id);
+      if (m.parent_id) {
+        const parent = map.get(m.parent_id);
+        if (parent) parent.children.push(node);
+        else roots.push(node);
+      } else {
+        roots.push(node);
+      }
+    });
+    return roots;
+  };
+
+  // 将平铺菜单列表转换为树（用于 Table 展示）
+  const convertListToTree = (list: Menu[]): Menu[] => {
+    const map = new Map<string, Menu & { children?: Menu[] }>();
+    const roots: (Menu & { children?: Menu[] })[] = [];
+
+    list.forEach((m) => {
+      map.set(m.id, { ...m, children: [] });
+    });
+
+    list.forEach((m) => {
+      const node = map.get(m.id)!;
+      if (m.parent_id) {
+        const parent = map.get(m.parent_id);
+        if (parent) {
+          parent.children!.push(node);
+        } else {
+          roots.push(node);
+        }
+      } else {
+        roots.push(node);
+      }
+    });
+
+    // 清理空 children 以避免渲染多余展开图标
+    const clean = (nodes: (Menu & { children?: Menu[] })[]): Menu[] =>
+      nodes.map((n) => {
+        const x: any = { ...n };
+        if (x.children && x.children.length > 0) {
+          x.children = clean(x.children);
+        } else {
+          delete x.children;
+        }
+        return x as Menu;
+      });
+
+    return clean(roots);
   };
 
   const columns = [
@@ -161,9 +224,7 @@ const MenuManagement: React.FC = () => {
           rowKey="id"
           loading={loading}
           pagination={false}
-          expandable={{
-            defaultExpandAllRows: true,
-          }}
+          expandable={{ defaultExpandAllRows: true }}
         />
       </Card>
 
@@ -195,11 +256,16 @@ const MenuManagement: React.FC = () => {
             <Input />
           </Form.Item>
 
-          <Form.Item
-            name="path"
-            label="路径"
-          >
-            <Input />
+          <Form.Item name="parent_id" label="上级菜单">
+            <TreeSelect
+              allowClear
+              showSearch
+              treeDefaultExpandAll
+              placeholder="请选择上级菜单（不选则为根菜单）"
+              treeData={menusToTreeSelect(menus)}
+              fieldNames={{ value: 'id', label: 'name', children: 'children' }}
+              style={{ width: '100%' }}
+            />
           </Form.Item>
 
           <Form.Item

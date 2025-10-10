@@ -18,7 +18,8 @@ import RoleManagement from '../pages/role/RoleManagement';
 import MenuManagement from '../pages/menu/MenuManagement';
 
 // 字典管理路由
-import DictManagement from '../pages/dict/DictManagement';
+import DictList from '../pages/dict/DictList';
+import DictItemList from '../pages/dict/DictItemList';
 
 const AppRoutes: React.FC = () => {
   const { isAuthenticated } = useAuthStore();
@@ -50,8 +51,8 @@ const AppRoutes: React.FC = () => {
         <Route path="/menus/*" element={<MenuManagement />} />
         
         {/* 字典管理路由 */}
-        <Route path="/dicts" element={<DictManagement />} />
-        <Route path="/dicts/*" element={<DictManagement />} />
+        <Route path="/dict" element={<DictList />} />
+        <Route path="/dict/items/:dictId" element={<DictItemList />} />
       </Routes>
     </Layout>
   );

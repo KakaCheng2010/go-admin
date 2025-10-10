@@ -10,7 +10,7 @@ type Menu struct {
 	ID        int64          `json:"id,string" gorm:"primaryKey"`
 	Name      string         `json:"name" gorm:"not null" binding:"required"`
 	Code      string         `json:"code" gorm:"uniqueIndex;not null" binding:"required"`
-	ParentID  *int64         `json:"parent_id"`
+	ParentID  *int64         `json:"parent_id,string"`
 	Path      string         `json:"path"`
 	Component string         `json:"component"`
 	Icon      string         `json:"icon"`

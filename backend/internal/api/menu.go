@@ -18,27 +18,27 @@ func NewMenuHandler(menuService *service.MenuService) *MenuHandler {
 }
 
 type CreateMenuRequest struct {
-	Name      string `json:"name" binding:"required"`
-	Code      string `json:"code" binding:"required"`
-	ParentID  *int64 `json:"parent_id"`
-	Path      string `json:"path"`
-	Component string `json:"component"`
-	Icon      string `json:"icon"`
-	Type      int    `json:"type"`
-	Sort      int    `json:"sort"`
-	Status    int    `json:"status"`
+	Name      string  `json:"name" binding:"required"`
+	Code      string  `json:"code" binding:"required"`
+	ParentID  *string `json:"parent_id"`
+	Path      string  `json:"path"` // 将由服务层自动计算，前端可不传
+	Component string  `json:"component"`
+	Icon      string  `json:"icon"`
+	Type      int     `json:"type"`
+	Sort      int     `json:"sort"`
+	Status    int     `json:"status"`
 }
 
 type UpdateMenuRequest struct {
-	Name      string `json:"name"`
-	Code      string `json:"code"`
-	ParentID  *int64 `json:"parent_id"`
-	Path      string `json:"path"`
-	Component string `json:"component"`
-	Icon      string `json:"icon"`
-	Type      int    `json:"type"`
-	Sort      int    `json:"sort"`
-	Status    int    `json:"status"`
+	Name      string  `json:"name"`
+	Code      string  `json:"code"`
+	ParentID  *string `json:"parent_id"`
+	Path      string  `json:"path"` // 将由服务层重新计算
+	Component string  `json:"component"`
+	Icon      string  `json:"icon"`
+	Type      int     `json:"type"`
+	Sort      int     `json:"sort"`
+	Status    int     `json:"status"`
 }
 
 func (h *MenuHandler) CreateMenu(c *gin.Context) {
@@ -48,10 +48,20 @@ func (h *MenuHandler) CreateMenu(c *gin.Context) {
 		return
 	}
 
+	var parentID *int64
+	if req.ParentID != nil && *req.ParentID != "" {
+		pid, err := strconv.ParseInt(*req.ParentID, 10, 64)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "父级菜单ID格式错误"})
+			return
+		}
+		parentID = &pid
+	}
+
 	menu := &model.Menu{
 		Name:      req.Name,
 		Code:      req.Code,
-		ParentID:  req.ParentID,
+		ParentID:  parentID,
 		Path:      req.Path,
 		Component: req.Component,
 		Icon:      req.Icon,
@@ -105,8 +115,19 @@ func (h *MenuHandler) UpdateMenu(c *gin.Context) {
 
 	menu.Name = req.Name
 	menu.Code = req.Code
-	menu.ParentID = req.ParentID
-	menu.Path = req.Path
+	if req.ParentID != nil {
+		if *req.ParentID == "" {
+			menu.ParentID = nil
+		} else {
+			pid, perr := strconv.ParseInt(*req.ParentID, 10, 64)
+			if perr != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "父级菜单ID格式错误"})
+				return
+			}
+			menu.ParentID = &pid
+		}
+	}
+	// 路径由服务层计算
 	menu.Component = req.Component
 	menu.Icon = req.Icon
 	menu.Type = req.Type

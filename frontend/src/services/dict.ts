@@ -1,26 +1,24 @@
 import api from './api';
 
 export interface Dict {
-  id: number;
+  id: string;
   name: string;
   code: string;
   description: string;
   status: number;
   created_at: string;
   updated_at: string;
-  items?: DictItem[];
 }
 
 export interface DictItem {
-  id: number;
-  dict_id: number;
+  id: string;
+  dict_id: string;
   label: string;
   value: string;
   sort: number;
   status: number;
   created_at: string;
   updated_at: string;
-  dict?: Dict;
 }
 
 export interface CreateDictRequest {
@@ -38,7 +36,7 @@ export interface UpdateDictRequest {
 }
 
 export interface CreateDictItemRequest {
-  dict_id: number;
+  dict_id: string;
   label: string;
   value: string;
   sort?: number;
@@ -59,13 +57,8 @@ export const dictService = {
     return response.data.dicts;
   },
 
-  getDict: async (id: number): Promise<Dict> => {
+  getDict: async (id: string): Promise<Dict> => {
     const response = await api.get(`/dicts/${id}`);
-    return response.data;
-  },
-
-  getDictByCode: async (code: string): Promise<Dict> => {
-    const response = await api.get(`/dicts/code/${code}`);
     return response.data;
   },
 
@@ -74,37 +67,37 @@ export const dictService = {
     return response.data.dict;
   },
 
-  updateDict: async (id: number, data: UpdateDictRequest): Promise<Dict> => {
+  updateDict: async (id: string, data: UpdateDictRequest): Promise<Dict> => {
     const response = await api.put(`/dicts/${id}`, data);
     return response.data.dict;
   },
 
-  deleteDict: async (id: number): Promise<void> => {
+  deleteDict: async (id: string): Promise<void> => {
     await api.delete(`/dicts/${id}`);
   },
 
   // 字典项管理
-  getDictItems: async (dictId: number): Promise<DictItem[]> => {
+  getDictItems: async (dictId: string): Promise<DictItem[]> => {
     const response = await api.get(`/dicts/${dictId}/items`);
     return response.data.items;
   },
 
-  getDictItem: async (id: number): Promise<DictItem> => {
+  getDictItem: async (id: string): Promise<DictItem> => {
     const response = await api.get(`/dict-items/${id}`);
     return response.data;
   },
 
   createDictItem: async (data: CreateDictItemRequest): Promise<DictItem> => {
-    const response = await api.post(`/dicts/${data.dict_id}/items`, data);
+    const response = await api.post('/dict-items', data);
     return response.data.item;
   },
 
-  updateDictItem: async (id: number, data: UpdateDictItemRequest): Promise<DictItem> => {
+  updateDictItem: async (id: string, data: UpdateDictItemRequest): Promise<DictItem> => {
     const response = await api.put(`/dict-items/${id}`, data);
     return response.data.item;
   },
 
-  deleteDictItem: async (id: number): Promise<void> => {
+  deleteDictItem: async (id: string): Promise<void> => {
     await api.delete(`/dict-items/${id}`);
   },
 };

@@ -1,10 +1,10 @@
 import api from './api';
 
 export interface Menu {
-  id: number;
+  id: string;
   name: string;
   code: string;
-  parent_id?: number;
+  parent_id?: string;
   path: string;
   component: string;
   icon: string;
@@ -20,7 +20,7 @@ export interface Menu {
 export interface CreateMenuRequest {
   name: string;
   code: string;
-  parent_id?: number;
+  parent_id?: string;
   path?: string;
   component?: string;
   icon?: string;
@@ -32,7 +32,7 @@ export interface CreateMenuRequest {
 export interface UpdateMenuRequest {
   name?: string;
   code?: string;
-  parent_id?: number;
+  parent_id?: string;
   path?: string;
   component?: string;
   icon?: string;
@@ -52,7 +52,7 @@ export const menuService = {
     return response.data.menus;
   },
 
-  getMenu: async (id: number): Promise<Menu> => {
+  getMenu: async (id: string): Promise<Menu> => {
     const response = await api.get(`/menus/${id}`);
     return response.data;
   },
@@ -62,12 +62,12 @@ export const menuService = {
     return response.data.menu;
   },
 
-  updateMenu: async (id: number, data: UpdateMenuRequest): Promise<Menu> => {
+  updateMenu: async (id: string, data: UpdateMenuRequest): Promise<Menu> => {
     const response = await api.put(`/menus/${id}`, data);
     return response.data.menu;
   },
 
-  deleteMenu: async (id: number): Promise<void> => {
+  deleteMenu: async (id: string): Promise<void> => {
     await api.delete(`/menus/${id}`);
   },
 };
