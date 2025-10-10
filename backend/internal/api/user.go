@@ -41,12 +41,17 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
+	// 操作人
+	operatorID, _ := c.Get("user_id")
+
 	user := &model.User{
-		Username: req.Username,
-		Password: req.Password,
-		Phone:    req.Phone,
-		RealName: req.RealName,
-		Status:   req.Status,
+		Username:  req.Username,
+		Password:  req.Password,
+		Phone:     req.Phone,
+		RealName:  req.RealName,
+		Status:    req.Status,
+		CreatedBy: operatorID.(int64),
+		UpdatedBy: operatorID.(int64),
 	}
 
 	// 只有当邮箱不为空时才设置
@@ -111,9 +116,13 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 		return
 	}
 
+	// 操作人
+	operatorID, _ := c.Get("user_id")
+
 	user.Phone = req.Phone
 	user.RealName = req.RealName
 	user.Status = req.Status
+	user.UpdatedBy = operatorID.(int64)
 
 	// 只有当邮箱不为空时才更新
 	if req.Email != "" {
@@ -137,7 +146,10 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 		return
 	}
 
-	if err := h.userService.DeleteUser(id); err != nil {
+	// 操作人
+	operatorID, _ := c.Get("user_id")
+
+	if err := h.userService.SoftDeleteUser(id, operatorID.(int64)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "删除失败"})
 		return
 	}

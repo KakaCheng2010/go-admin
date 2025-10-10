@@ -27,6 +27,8 @@ const OrganizationTree: React.FC<OrganizationTreeProps> = ({
   style,
 }) => {
   const [orgTreeData, setOrgTreeData] = useState<any[]>([]);
+  const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
+  const [autoExpanded, setAutoExpanded] = useState<boolean>(false);
 
   // 加载组织数据
   const loadOrganizations = async () => {
@@ -89,6 +91,27 @@ const OrganizationTree: React.FC<OrganizationTreeProps> = ({
     loadOrganizations();
   }, []);
 
+  // 收集所有节点key用于展开
+  const collectAllKeys = (nodes: any[]): React.Key[] => {
+    const keys: React.Key[] = [];
+    const walk = (arr: any[]) => {
+      arr.forEach((n) => {
+        keys.push(n.key);
+        if (n.children && n.children.length) walk(n.children);
+      });
+    };
+    walk(nodes);
+    return keys;
+  };
+
+  // 数据加载后执行一次全量展开，确保异步加载时也能展开
+  useEffect(() => {
+    if (defaultExpandAll && !autoExpanded && orgTreeData.length > 0) {
+      setExpandedKeys(collectAllKeys(orgTreeData));
+      setAutoExpanded(true);
+    }
+  }, [defaultExpandAll, autoExpanded, orgTreeData]);
+
   // 构建树形数据
   const treeData = [
     ...orgTreeData,
@@ -99,6 +122,8 @@ const OrganizationTree: React.FC<OrganizationTreeProps> = ({
       <Tree
         showIcon
         defaultExpandAll={defaultExpandAll}
+        expandedKeys={expandedKeys}
+        onExpand={(keys) => setExpandedKeys(keys as React.Key[])}
         selectedKeys={selectedOrgId ? [selectedOrgId] :[]}
         onSelect={handleOrgSelect}
         treeData={treeData}

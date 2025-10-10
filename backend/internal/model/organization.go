@@ -15,6 +15,9 @@ type Organization struct {
 	Sort        int            `json:"sort" gorm:"default:0"`
 	Status      int            `json:"status" gorm:"default:1"` // 1:正常 0:禁用
 	Description string         `json:"description"`
+	CreatedBy   int64          `json:"created_by,string" gorm:"index"`
+	UpdatedBy   int64          `json:"updated_by,string" gorm:"index"`
+	DeletedBy   *int64         `json:"deleted_by,string" gorm:"index"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
 	DeletedAt   gorm.DeletedAt `json:"-" gorm:"index"`

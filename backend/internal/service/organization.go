@@ -74,6 +74,14 @@ func (s *OrganizationService) DeleteOrganization(id int64) error {
 	return s.db.Delete(&model.Organization{}, id).Error
 }
 
+func (s *OrganizationService) SoftDeleteOrganization(id int64, operatorID int64) error {
+	// 标记删除人
+	if err := s.db.Model(&model.Organization{}).Where("id = ?", id).Update("deleted_by", operatorID).Error; err != nil {
+		return err
+	}
+	return s.DeleteOrganization(id)
+}
+
 func (s *OrganizationService) ListOrganizations() ([]model.Organization, error) {
 	var orgs []model.Organization
 	err := s.db.Preload("Parent").Preload("Children").Order("sort ASC, id ASC").Find(&orgs).Error

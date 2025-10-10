@@ -69,6 +69,8 @@ func (h *OrganizationHandler) CreateOrganization(c *gin.Context) {
 		path = strconv.FormatInt(id, 10)
 	}
 
+	operatorID, _ := c.Get("user_id")
+
 	org := &model.Organization{
 		ID:          id,
 		Name:        req.Name,
@@ -78,6 +80,8 @@ func (h *OrganizationHandler) CreateOrganization(c *gin.Context) {
 		Sort:        req.Sort,
 		Status:      req.Status,
 		Description: req.Description,
+		CreatedBy:   operatorID.(int64),
+		UpdatedBy:   operatorID.(int64),
 	}
 
 	if err := h.orgService.CreateOrganization(org); err != nil {
@@ -152,6 +156,10 @@ func (h *OrganizationHandler) UpdateOrganization(c *gin.Context) {
 	org.Sort = req.Sort
 	org.Status = req.Status
 	org.Description = req.Description
+	// 设置操作人
+	if operatorID, ok := c.Get("user_id"); ok {
+		org.UpdatedBy = operatorID.(int64)
+	}
 
 	if err := h.orgService.UpdateOrganization(org); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "更新失败"})
@@ -168,6 +176,14 @@ func (h *OrganizationHandler) DeleteOrganization(c *gin.Context) {
 		return
 	}
 
+	if operatorID, ok := c.Get("user_id"); ok {
+		if err := h.orgService.SoftDeleteOrganization(id, operatorID.(int64)); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "删除失败"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "删除成功"})
+		return
+	}
 	if err := h.orgService.DeleteOrganization(id); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "删除失败"})
 		return

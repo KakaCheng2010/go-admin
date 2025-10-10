@@ -56,6 +56,14 @@ func (s *UserService) DeleteUser(id int64) error {
 	return s.db.Delete(&model.User{}, id).Error
 }
 
+func (s *UserService) SoftDeleteUser(id int64, operatorID int64) error {
+	// 先更新 DeletedBy，再执行软删除
+	if err := s.db.Model(&model.User{}).Where("id = ?", id).Update("deleted_by", operatorID).Error; err != nil {
+		return err
+	}
+	return s.db.Delete(&model.User{}, id).Error
+}
+
 type UserFilters struct {
 	Username string
 	Phone    string
