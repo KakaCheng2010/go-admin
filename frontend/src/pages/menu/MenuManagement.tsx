@@ -172,9 +172,15 @@ const MenuManagement: React.FC = () => {
       key: 'name',
     },
     {
-      title: '组件',
+      title: '组件路径',
       dataIndex: 'component',
       key: 'component',
+    },
+    {
+      title: '前端路由',
+      dataIndex: 'route',
+      key: 'route',
+      width: 120,
     },
     {
       title: '图标',
@@ -190,52 +196,40 @@ const MenuManagement: React.FC = () => {
       key: 'type',
       render: (type: number) => (
         <Tag color={type === 1 ? 'blue' : 'green'}>
-          {type === 1 ? '菜单' : '组件'}
+          {type === 1 ? '菜单' : '操作'}
         </Tag>
       ),
     },
-    {
-      title: '排序',
-      dataIndex: 'sort',
-      key: 'sort',
-      width: 80,
-      sorter: (a: Menu, b: Menu) => a.sort - b.sort,
-      defaultSortOrder: 'ascend' as const,
-    },
+   
     {
       title: '权限标识',
       dataIndex: 'permission',
       key: 'permission',
       width: 120,
     },
-    {
-      title: '前端路由',
-      dataIndex: 'route',
-      key: 'route',
-      width: 120,
-    },
-    {
-      title: '隐藏',
-      dataIndex: 'hidden',
-      key: 'hidden',
-      width: 80,
-      render: (hidden: boolean) => (
-        <Tag color={hidden ? 'red' : 'green'}>
-          {hidden ? '是' : '否'}
-        </Tag>
-      ),
-    },
-    {
-      title: '缓存',
-      dataIndex: 'keep_alive',
-      key: 'keep_alive',
-      width: 80,
-      render: (keepAlive: boolean) => (
-        <Tag color={keepAlive ? 'blue' : 'default'}>
-          {keepAlive ? '是' : '否'}
-        </Tag>
-      ),
-    },
+   
+    // {
+    //   title: '隐藏',
+    //   dataIndex: 'hidden',
+    //   key: 'hidden',
+    //   width: 80,
+    //   render: (hidden: boolean) => (
+    //     <Tag color={hidden ? 'red' : 'green'}>
+    //       {hidden ? '是' : '否'}
+    //     </Tag>
+    //   ),
+    // },
+    // {
+    //   title: '缓存',
+    //   dataIndex: 'keep_alive',
+    //   key: 'keep_alive',
+    //   width: 80,
+    //   render: (keepAlive: boolean) => (
+    //     <Tag color={keepAlive ? 'blue' : 'default'}>
+    //       {keepAlive ? '是' : '否'}
+    //     </Tag>
+    //   ),
+    // },
     {
       title: '状态',
       dataIndex: 'status',
@@ -261,7 +255,6 @@ const MenuManagement: React.FC = () => {
             onClick={() => handleEdit(record)}
             title='编辑'
           >
-            编辑
           </Button>
           <Button
             type="link"
@@ -270,7 +263,6 @@ const MenuManagement: React.FC = () => {
             onClick={() => handleDelete(record.id)}
             title='删除'
           >
-            删除
           </Button>
         </Space>
       ),
@@ -338,7 +330,7 @@ const MenuManagement: React.FC = () => {
               >
                 <Radio.Group onChange={(e) => setMenuType(e.target.value)}>
                   <Radio value={1}>菜单</Radio>
-                  <Radio value={2}>组件</Radio>
+                  <Radio value={2}>操作</Radio>
                 </Radio.Group>
               </Form.Item>
             </Col>
@@ -358,8 +350,8 @@ const MenuManagement: React.FC = () => {
             <Col xs={24} sm={8} md={8} lg={8} xl={8}>
               <Form.Item
                 name="name"
-                label={menuType === 1 ? "菜单名称" : "组件名称"}
-                rules={[{ required: true, message: menuType === 1 ? '请输入菜单名称' : '请输入组件名称' }]}
+                label={menuType === 1 ? "菜单名称" : "操作名称"}
+                rules={[{ required: true, message: menuType === 1 ? '请输入菜单名称' : '请输入操作名称' }]}
               >
                 <Input />
               </Form.Item>

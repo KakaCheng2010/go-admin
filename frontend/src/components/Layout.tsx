@@ -69,13 +69,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         collapsible
         collapsed={collapsed}
         style={{
-          background: ' #2b2f3a;',
+          background: ' #2b2f3a',
         }}
       >
         <div style={{
           height: 30,
           margin: 10,
-          background: ' #2b2f3a;',
+          background: ' #2b2f3a',
           borderRadius: 0,
           display: 'flex',
           alignItems: 'center',
