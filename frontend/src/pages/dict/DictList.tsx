@@ -169,7 +169,6 @@ const DictList: React.FC = () => {
     <div>
       <Card>
         <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between' }}>
-          <h4 style={{ margin: 0 }}>字典管理</h4>
           <Space>
             <Button icon={<ReloadOutlined />} onClick={loadDicts}>
               刷新

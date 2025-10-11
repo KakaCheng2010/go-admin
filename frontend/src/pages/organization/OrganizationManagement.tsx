@@ -303,7 +303,7 @@ const OrganizationManagement: React.FC = () => {
     <Card>
      
         <div style={{ marginBottom: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Title level={4} style={{ margin: 0 }}>组织管理</Title>
+         
           <Space>
             <Button 
               icon={<ReloadOutlined />} 

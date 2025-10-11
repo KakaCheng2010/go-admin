@@ -75,7 +75,7 @@ export const generateMenuItems = (menus: Menu[]): any[] => {
   menus.forEach(menu => {
     if (menu.type === 1 && !menu.hidden) {
       // 直接使用IconDisplay组件渲染图标
-      const iconElement = menu.icon ? <IconDisplay iconName={menu.icon} size={16} /> : null;
+      const iconElement = menu.icon ? <IconDisplay iconName={menu.icon} /> : null;
       
       const menuItem = {
         key: menu.route || menu.id,

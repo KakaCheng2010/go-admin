@@ -243,7 +243,7 @@ const RoleManagement: React.FC = () => {
     <div>
       <Card>
         <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between' }}>
-          <h2 style={{ margin: 0 }}>角色管理</h2>
+          
           <Space>
             <Button icon={<ReloadOutlined />} onClick={loadRoles}>
               刷新

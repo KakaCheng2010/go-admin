@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Table, Button, Space, Tag, message, Popconfirm, Breadcrumb, Modal, Form, Input, InputNumber, Select } from 'antd';
 import {
+  ArrowLeftOutlined,
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
   ReloadOutlined,
-  ArrowLeftOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { dictService, DictItem, Dict } from '../../services/dict';
@@ -39,7 +39,7 @@ const DictItemList: React.FC = () => {
   // 加载字典项列表
   const loadItems = async () => {
     if (!dictId) return;
-    
+
     setLoading(true);
     try {
       const data = await dictService.getDictItems(dictId);
@@ -166,7 +166,7 @@ const DictItemList: React.FC = () => {
       render: (_: any, record: DictItem) => (
         <Space size="small">
           <Button type="link" icon={<EditOutlined />} onClick={() => openEditModal(record)} title='编辑'>
-            
+
           </Button>
           <Popconfirm
             title="确定要删除这个字典项吗？"
@@ -175,7 +175,7 @@ const DictItemList: React.FC = () => {
             cancelText="取消"
           >
             <Button type="link" danger icon={<DeleteOutlined />} title='删除'>
-          
+
             </Button>
           </Popconfirm>
         </Space>
@@ -187,32 +187,24 @@ const DictItemList: React.FC = () => {
     <div>
       <Card>
         <div style={{ marginBottom: 16 }}>
-          <Breadcrumb>
-            <Breadcrumb.Item>
-              <Button 
-                type="link" 
-                icon={<ArrowLeftOutlined />} 
-                onClick={() => navigate('/dict')}
-                style={{ padding: 0 }}
-              >
-                字典管理
-              </Button>
-            </Breadcrumb.Item>
-            <Breadcrumb.Item>
-              {dict ? `${dict.name} (${dict.code})` : '字典项管理'}
-            </Breadcrumb.Item>
-          </Breadcrumb>
+          <Breadcrumb
+            items={[
+              {
+                title: <a href="/dict"><ArrowLeftOutlined /></a>,
+              },
+              {
+                title: <a href="/dict">字典管理</a>,
+              },
+
+              {
+                title: dict ? `${dict.name} (${dict.code})` : '字典项管理',
+              },
+            ]}
+          />
+
         </div>
 
         <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between' }}>
-          <h2 style={{ margin: 0 }}>
-            字典项管理
-            {dict && (
-              <span style={{ fontSize: '14px', color: '#666', marginLeft: '8px' }}>
-                - {dict.name}
-              </span>
-            )}
-          </h2>
           <Space>
             <Button icon={<ReloadOutlined />} onClick={loadItems}>
               刷新

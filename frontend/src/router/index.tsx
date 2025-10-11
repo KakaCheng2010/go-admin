@@ -4,6 +4,7 @@ import { useAuthStore } from '../store/authStore';
 import { useMenuStore } from '../store/menuStore';
 import Login from '../pages/Login';
 import Dashboard from '../pages/Dashboard';
+import DictItemList from '../pages/dict/DictItemList';
 import Layout from '../components/Layout';
 import { generateRoutes } from './dynamicRoutes';
 
@@ -41,6 +42,9 @@ const AppRoutes: React.FC = () => {
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
+     
+        <Route path="/dict/items/:dictId" element={<DictItemList />} />
+
         {/* 临时添加dict路由用于测试 */}
         <Route path="/dict" element={<DictList />} />
         {dynamicRoutes}

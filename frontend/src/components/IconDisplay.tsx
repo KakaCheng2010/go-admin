@@ -33,15 +33,11 @@ import {
 interface IconDisplayProps {
   iconName?: string;
   showName?: boolean;
-  size?: number;
-  style?: React.CSSProperties;
 }
 
 const IconDisplay: React.FC<IconDisplayProps> = ({
   iconName,
-  showName = false,
-  size = 16,
-  style = {}
+  showName = false
 }) => {
   // 图标映射
   const getIconComponent = (name: string) => {
@@ -80,30 +76,25 @@ const IconDisplay: React.FC<IconDisplayProps> = ({
   };
 
   if (!iconName) {
-    return <span>-</span>;
+    return null;
   }
 
   const iconComponent = getIconComponent(iconName);
 
   if (!iconComponent) {
-    return <span>{iconName}</span>;
+    return null;
   }
-
-  const iconStyle = {
-    fontSize: size,
-    ...style
-  };
 
   if (showName) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={iconStyle}>{iconComponent}</span>
-        {/* <span>{iconName}</span> */}
+        {iconComponent}
+        <span>{iconName}</span>
       </div>
     );
   }
 
-  return <span style={iconStyle}>{iconComponent}</span>;
+  return iconComponent;
 };
 
 export default IconDisplay;
