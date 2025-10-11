@@ -2,17 +2,28 @@ import React, { useState } from 'react';
 import { Form, Input, Button, Card, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useAuthStore } from '../store/authStore';
+import { useDictStore } from '../store/dictStore';
 import { authService, LoginRequest } from '../services/auth';
 
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useAuthStore();
+  const { loadAllDicts } = useDictStore();
 
   const onLogin = async (values: LoginRequest) => {
     setLoading(true);
     try {
       const response = await authService.login(values);
       login(response.token, response.user);
+      
+      // 登录成功后加载字典数据
+      try {
+        await loadAllDicts();
+      } catch (dictError) {
+        console.warn('加载字典数据失败:', dictError);
+        // 字典加载失败不影响登录流程
+      }
+      
       message.success('登录成功');
     } catch (error: any) {
       message.error(error.response?.data?.error || '登录失败');

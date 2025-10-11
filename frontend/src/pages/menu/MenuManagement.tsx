@@ -166,6 +166,14 @@ const MenuManagement: React.FC = () => {
       ),
     },
     {
+      title: '排序',
+      dataIndex: 'sort',
+      key: 'sort',
+      width: 80,
+      sorter: (a: Menu, b: Menu) => a.sort - b.sort,
+      defaultSortOrder: 'ascend' as const,
+    },
+    {
       title: '状态',
       dataIndex: 'status',
       key: 'status',
@@ -190,7 +198,7 @@ const MenuManagement: React.FC = () => {
             onClick={() => handleEdit(record)}
             title='编辑'
           >
-          
+            编辑
           </Button>
           <Button
             type="link"
@@ -199,7 +207,7 @@ const MenuManagement: React.FC = () => {
             onClick={() => handleDelete(record.id)}
             title='删除'
           >
-            
+            删除
           </Button>
         </Space>
       ),

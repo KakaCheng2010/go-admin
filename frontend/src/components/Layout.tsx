@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout as AntLayout, Menu, Avatar, Dropdown, Button, theme } from 'antd';
 import {
   UserOutlined,
@@ -7,6 +7,7 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import { useDictStore } from '../store/dictStore';
 import { menuRoutes, userMenuRoutes } from '../router';
 
 const { Header, Sider, Content } = AntLayout;
@@ -20,6 +21,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout, isAuthenticated } = useAuthStore();
+  const { loadAllDicts } = useDictStore();
   const { token } = theme.useToken();
 
   // 检查认证状态
@@ -28,6 +30,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       navigate('/login');
     }
   }, [isAuthenticated, navigate]);
+
+  // 用户已认证时加载字典数据
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadAllDicts().catch(error => {
+        console.warn('加载字典数据失败:', error);
+      });
+    }
+  }, [isAuthenticated, loadAllDicts]);
 
   const menuItems = menuRoutes.map(route => ({
     key: route.key,

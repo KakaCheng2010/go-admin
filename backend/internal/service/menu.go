@@ -85,12 +85,12 @@ func (s *MenuService) DeleteMenu(id int64) error {
 
 func (s *MenuService) ListMenus() ([]model.Menu, error) {
 	var menus []model.Menu
-	err := s.db.Preload("Parent").Preload("Children").Find(&menus).Error
+	err := s.db.Preload("Parent").Preload("Children").Order("sort ASC, id ASC").Find(&menus).Error
 	return menus, err
 }
 
 func (s *MenuService) GetMenuTree() ([]model.Menu, error) {
 	var menus []model.Menu
-	err := s.db.Where("parent_id IS NULL").Preload("Children").Find(&menus).Error
+	err := s.db.Where("parent_id IS NULL").Preload("Children").Order("sort ASC, id ASC").Find(&menus).Error
 	return menus, err
 }

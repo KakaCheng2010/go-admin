@@ -19,7 +19,7 @@ func NewAuthService(db *gorm.DB) *AuthService {
 func (s *AuthService) Login(username, password string) (*model.User, error) {
 	// 查找用户
 	var user model.User
-	if err := s.db.Where("username = ? AND status = 1", username).First(&user).Error; err != nil {
+	if err := s.db.Where("username = ? AND status = '1'", username).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("用户不存在或已被禁用")
 		}
