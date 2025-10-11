@@ -51,6 +51,10 @@ export interface UpdateDictItemRequest {
   status?: number;
 }
 
+export interface DictWithItems extends Dict {
+  items: DictItem[];
+}
+
 export const dictService = {
   // 字典管理
   getDicts: async (): Promise<Dict[]> => {
@@ -100,5 +104,11 @@ export const dictService = {
 
   deleteDictItem: async (id: string): Promise<void> => {
     await api.delete(`/dict-items/${id}`);
+  },
+
+  // 一次性获取所有字典和字典项
+  getAllDictsWithItems: async (): Promise<DictWithItems[]> => {
+    const response = await api.get('/dicts/all-with-items');
+    return response.data.dicts;
   },
 };

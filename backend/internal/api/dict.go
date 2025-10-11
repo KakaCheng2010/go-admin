@@ -272,3 +272,14 @@ func (h *DictHandler) ListDictItems(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"items": items})
 }
+
+// 获取所有字典及其字典项（一次性查询）
+func (h *DictHandler) GetAllDictsWithItems(c *gin.Context) {
+	dicts, err := h.dictService.GetAllDictsWithItems()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "获取所有字典失败"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"dicts": dicts})
+}

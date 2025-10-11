@@ -279,7 +279,7 @@ const MenuManagement: React.FC = () => {
               刷新
             </Button>
             <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
-              新增菜单
+              新增
             </Button>
           </Space>
         </div>

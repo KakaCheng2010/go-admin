@@ -210,7 +210,7 @@ const DictItemList: React.FC = () => {
               刷新
             </Button>
             <Button type="primary" icon={<PlusOutlined />} onClick={openCreateModal}>
-              新增字典项
+              新增
             </Button>
           </Space>
         </div>

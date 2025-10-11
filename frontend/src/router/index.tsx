@@ -16,10 +16,17 @@ const AppRoutes: React.FC = () => {
   const { userMenus, loadUserMenus, clearMenus } = useMenuStore();
   const [dynamicRoutes, setDynamicRoutes] = React.useState<React.ReactElement[]>([]);
 
-  // 获取用户菜单并生成路由
+  // 处理认证状态变化
+  useEffect(() => {
+    if (!isAuthenticated) {
+      clearMenus();
+      setDynamicRoutes([]);
+    }
+  }, [isAuthenticated, clearMenus]);
+
+  // 处理菜单加载和路由生成
   useEffect(() => {
     if (isAuthenticated && user) {
-      // 如果菜单还没有加载，立即开始加载
       if (userMenus.length === 0) {
         loadUserMenus();
       } else {
@@ -27,11 +34,8 @@ const AppRoutes: React.FC = () => {
         const routes = generateRoutes(userMenus);
         setDynamicRoutes(routes);
       }
-    } else {
-      clearMenus();
-      setDynamicRoutes([]);
     }
-  }, [isAuthenticated, user, userMenus, loadUserMenus, clearMenus]);
+  }, [isAuthenticated, user, userMenus, loadUserMenus]);
  
   if (!isAuthenticated) {
     return <Login />;

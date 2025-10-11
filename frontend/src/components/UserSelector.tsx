@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Row, Col, Card, Form, Input, Button, Space, Table } from 'antd';
+import { Modal, Row, Col, Card, Form, Input, Button, Space, Table, Select } from 'antd';
 import { userService, User } from '../services/user';
 import { organizationService } from '../services/organization';
 import OrganizationTree from './OrganizationTree';
@@ -39,13 +39,15 @@ const UserSelector: React.FC<UserSelectorProps> = ({
   // 加载用户数据
   const loadUsers = async (orgId?: string, orgPath?: string, searchParams?: any) => {
     try {
-      console.log('加载用户数据，组织ID:', orgId, '组织路径:', orgPath);
+      console.log('加载用户数据，组织ID:', orgId, '组织路径:', orgPath, '搜索参数:', searchParams);
       // 使用organization_path参数进行查询，包含子组织
       const response = await userService.getUsers(1, 1000, undefined, orgPath, searchParams);
       setUsers(response.users);
       console.log('加载到的用户数量:', response.users.length);
+      console.log('用户数据:', response.users);
     } catch (error) {
       console.error('加载用户列表失败:', error);
+      setUsers([]);
     }
   };
 
@@ -65,7 +67,13 @@ const UserSelector: React.FC<UserSelectorProps> = ({
 
   // 处理用户搜索
   const handleUserSearch = (values: any) => {
-    loadUsers(selectedOrgId || undefined, selectedOrgPath || undefined, values);
+    console.log('搜索参数:', values);
+    // 过滤掉空值
+    const filteredValues = Object.fromEntries(
+      Object.entries(values).filter(([_, value]) => value !== undefined && value !== null && value !== '')
+    );
+    console.log('过滤后的搜索参数:', filteredValues);
+    loadUsers(selectedOrgId || undefined, selectedOrgPath || undefined, filteredValues);
   };
 
   // 重置用户搜索
@@ -138,8 +146,11 @@ const UserSelector: React.FC<UserSelectorProps> = ({
               <Form.Item name="username" label="账号">
                 <Input placeholder="请输入账号" style={{ width: 120 }} />
               </Form.Item>
-              <Form.Item name="real_name" label="姓名">
-                <Input placeholder="请输入姓名" style={{ width: 120 }} />
+              <Form.Item name="status" label="状态">
+                <Select placeholder="请选择状态" style={{ width: 120 }} allowClear>
+                  <Select.Option value="1">正常</Select.Option>
+                  <Select.Option value="0">禁用</Select.Option>
+                </Select>
               </Form.Item>
               <Form.Item name="phone" label="手机号">
                 <Input placeholder="请输入手机号" style={{ width: 120 }} />

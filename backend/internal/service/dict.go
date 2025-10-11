@@ -68,3 +68,10 @@ func (s *DictService) ListDictItems(dictID uint) ([]model.DictItem, error) {
 	err := s.db.Where("dict_id = ?", dictID).Preload("Dict").Find(&items).Error
 	return items, err
 }
+
+// 获取所有字典及其字典项（一次性查询）
+func (s *DictService) GetAllDictsWithItems() ([]model.Dict, error) {
+	var dicts []model.Dict
+	err := s.db.Preload("Items").Find(&dicts).Error
+	return dicts, err
+}

@@ -52,19 +52,13 @@ export const useDictStore = create<DictStore>((set, get) => ({
     set({ loading: true, error: null });
     
     try {
-      // 获取所有字典列表
-      const dicts = await dictService.getDicts();
+      // 一次性获取所有字典和字典项
+      const dictsWithItems = await dictService.getAllDictsWithItems();
       
-      // 并行加载所有字典的字典项
-      const dictPromises = dicts.map(dict => 
-        dictService.getDictItems(dict.id).then(items => ({ dictCode: dict.code, items }))
-      );
-      
-      const results = await Promise.all(dictPromises);
-      
+      // 前端组装数据
       const dictData: DictData = {};
-      results.forEach(({ dictCode, items }) => {
-        dictData[dictCode] = items;
+      dictsWithItems.forEach(dict => {
+        dictData[dict.code] = dict.items;
       });
       
       set({ dictData, loading: false });

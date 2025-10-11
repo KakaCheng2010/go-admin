@@ -96,6 +96,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, rdb *redis.Client) *gin.Engine
 			{
 				dicts.POST("", dictHandler.CreateDict)
 				dicts.GET("", dictHandler.ListDicts)
+				dicts.GET("/all-with-items", dictHandler.GetAllDictsWithItems) // 一次性获取所有字典和字典项
 				dicts.GET("/code/:code", dictHandler.GetDictByCode)
 				dicts.GET("/:id", dictHandler.GetDict)
 				dicts.PUT("/:id", dictHandler.UpdateDict)

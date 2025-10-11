@@ -249,7 +249,7 @@ const RoleManagement: React.FC = () => {
               刷新
             </Button>
             <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
-              新增角色
+              新增
             </Button>
           </Space>
         </div>
