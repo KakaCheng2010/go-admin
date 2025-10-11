@@ -10,7 +10,7 @@ export interface Menu {
   icon: string;
   type: number;
   sort: number;
-  status: number;
+  status: string;
   created_at: string;
   updated_at: string;
   parent?: Menu;
@@ -26,7 +26,7 @@ export interface CreateMenuRequest {
   icon?: string;
   type?: number;
   sort?: number;
-  status?: number;
+  status?: string;
 }
 
 export interface UpdateMenuRequest {
@@ -38,7 +38,7 @@ export interface UpdateMenuRequest {
   icon?: string;
   type?: number;
   sort?: number;
-  status?: number;
+  status?: string;
 }
 
 export const menuService = {

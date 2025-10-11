@@ -26,7 +26,7 @@ type CreateMenuRequest struct {
 	Icon      string  `json:"icon"`
 	Type      int     `json:"type"`
 	Sort      int     `json:"sort"`
-	Status    int     `json:"status"`
+	Status    string  `json:"status"`
 }
 
 type UpdateMenuRequest struct {
@@ -38,7 +38,7 @@ type UpdateMenuRequest struct {
 	Icon      string  `json:"icon"`
 	Type      int     `json:"type"`
 	Sort      int     `json:"sort"`
-	Status    int     `json:"status"`
+	Status    string  `json:"status"`
 }
 
 func (h *MenuHandler) CreateMenu(c *gin.Context) {

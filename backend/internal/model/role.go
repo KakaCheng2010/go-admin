@@ -11,7 +11,7 @@ type Role struct {
 	Name        string         `json:"name" gorm:"not null" binding:"required"`
 	Code        string         `json:"code" gorm:"uniqueIndex;not null" binding:"required"`
 	Description string         `json:"description"`
-	Status      int            `json:"status" gorm:"default:1"` // 1:正常 0:禁用
+	Status      string         `json:"status" gorm:"default:'1'"` // 1:正常 0:禁用
 	Sort        int            `json:"sort" gorm:"default:0"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`

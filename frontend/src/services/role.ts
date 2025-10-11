@@ -5,7 +5,7 @@ export interface Role {
   name: string;
   code: string;
   description: string;
-  status: number;
+  status: string;
   sort: number;
   created_at: string;
   updated_at: string;
@@ -17,7 +17,7 @@ export interface CreateRoleRequest {
   name: string;
   code: string;
   description?: string;
-  status?: number;
+  status?: string;
   sort?: number;
 }
 
@@ -25,7 +25,7 @@ export interface UpdateRoleRequest {
   name?: string;
   code?: string;
   description?: string;
-  status?: number;
+  status?: string;
   sort?: number;
 }
 

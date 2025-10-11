@@ -7,6 +7,7 @@ import {
   ReloadOutlined,
 } from '@ant-design/icons';
 import { roleService, Role, CreateRoleRequest, UpdateRoleRequest } from '../../services/role';
+import { useDict } from '../../hooks/useDict';
 
 const RoleManagement: React.FC = () => {
   const [roles, setRoles] = useState<Role[]>([]);
@@ -14,6 +15,7 @@ const RoleManagement: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingRole, setEditingRole] = useState<Role | null>(null);
   const [form] = Form.useForm();
+  const { dictOptions: statusOptions, loading: statusLoading } = useDict('status');
 
   const loadRoles = async () => {
     setLoading(true);
@@ -89,11 +91,14 @@ const RoleManagement: React.FC = () => {
       title: '状态',
       dataIndex: 'status',
       key: 'status',
-      render: (status: number) => (
-        <Tag color={status === 1 ? 'green' : 'red'}>
-          {status === 1 ? '正常' : '禁用'}
-        </Tag>
-      ),
+      render: (status: string) => {
+        const statusOption = statusOptions.find(option => option.value === status);
+        return (
+          <Tag color={status === '1' ? 'green' : 'red'}>
+            {statusOption?.label || (status === '1' ? '正常' : '禁用')}
+          </Tag>
+        );
+      },
     },
     {
       title: '排序',
@@ -199,11 +204,14 @@ const RoleManagement: React.FC = () => {
           <Form.Item
             name="status"
             label="状态"
-            initialValue={1}
+            initialValue="1"
           >
-            <Select>
-              <Select.Option value={1}>正常</Select.Option>
-              <Select.Option value={0}>禁用</Select.Option>
+            <Select loading={statusLoading}>
+              {statusOptions.map(option => (
+                <Select.Option key={option.value} value={option.value}>
+                  {option.label}
+                </Select.Option>
+              ))}
             </Select>
           </Form.Item>
 

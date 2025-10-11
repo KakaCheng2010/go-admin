@@ -16,7 +16,7 @@ type Menu struct {
 	Icon      string         `json:"icon"`
 	Type      int            `json:"type" gorm:"default:1"` // 1:菜单 2:按钮
 	Sort      int            `json:"sort" gorm:"default:0"`
-	Status    int            `json:"status" gorm:"default:1"` // 1:正常 0:禁用
+	Status    string         `json:"status" gorm:"default:'1'"` // 1:正常 0:禁用
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`

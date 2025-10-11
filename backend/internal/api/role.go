@@ -21,7 +21,7 @@ type CreateRoleRequest struct {
 	Name        string `json:"name" binding:"required"`
 	Code        string `json:"code" binding:"required"`
 	Description string `json:"description"`
-	Status      int    `json:"status"`
+	Status      string `json:"status"`
 	Sort        int    `json:"sort"`
 }
 
@@ -29,7 +29,7 @@ type UpdateRoleRequest struct {
 	Name        string `json:"name"`
 	Code        string `json:"code"`
 	Description string `json:"description"`
-	Status      int    `json:"status"`
+	Status      string `json:"status"`
 	Sort        int    `json:"sort"`
 }
 
