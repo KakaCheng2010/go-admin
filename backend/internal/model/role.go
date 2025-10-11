@@ -18,11 +18,21 @@ type Role struct {
 	DeletedAt   gorm.DeletedAt `json:"-" gorm:"index"`
 
 	// 关联关系
-	Users []User `json:"users" gorm:"many2many:user_roles;"`
-	Menus []Menu `json:"menus" gorm:"many2many:role_menus;"`
+	Users []User `json:"users" gorm:"many2many:sys_user_roles;"`
+	Menus []Menu `json:"menus" gorm:"many2many:sys_role_menus;"`
 }
 
 type RoleMenu struct {
 	RoleID int64 `json:"role_id,string" gorm:"primaryKey"`
 	MenuID int64 `json:"menu_id,string" gorm:"primaryKey"`
+}
+
+// TableName 指定表名
+func (Role) TableName() string {
+	return "sys_roles"
+}
+
+// TableName 指定表名
+func (RoleMenu) TableName() string {
+	return "sys_role_menus"
 }

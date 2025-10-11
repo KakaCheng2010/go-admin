@@ -87,7 +87,7 @@ func (s *OrganizationService) DeleteOrganization(id int64) error {
 
 	// 检查是否有关联用户
 	var userCount int64
-	if err := s.db.Table("user_organizations").Where("organization_id = ?", id).Count(&userCount).Error; err != nil {
+	if err := s.db.Table("sys_user_organizations").Where("organization_id = ?", id).Count(&userCount).Error; err != nil {
 		return err
 	}
 

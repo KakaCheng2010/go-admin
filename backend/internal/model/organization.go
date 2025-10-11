@@ -25,5 +25,10 @@ type Organization struct {
 	// 关联关系（不使用外键约束）
 	Parent   *Organization  `json:"parent" gorm:"foreignKey:ParentID"`
 	Children []Organization `json:"children" gorm:"foreignKey:ParentID"`
-	Users    []User         `json:"users" gorm:"many2many:user_organizations;"`
+	Users    []User         `json:"users" gorm:"many2many:sys_user_organizations;"`
+}
+
+// TableName 指定表名
+func (Organization) TableName() string {
+	return "sys_organizations"
 }

@@ -24,5 +24,10 @@ type Menu struct {
 	// 关联关系
 	Parent   *Menu  `json:"parent" gorm:"foreignKey:ParentID"`
 	Children []Menu `json:"children" gorm:"foreignKey:ParentID"`
-	Roles    []Role `json:"roles" gorm:"many2many:role_menus;"`
+	Roles    []Role `json:"roles" gorm:"many2many:sys_role_menus;"`
+}
+
+// TableName 指定表名
+func (Menu) TableName() string {
+	return "sys_menus"
 }

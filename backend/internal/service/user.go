@@ -127,9 +127,9 @@ func (s *UserService) ListUsersByOrganizationPath(organizationPath string, page,
 	// 构建查询条件：查找所有路径以指定路径开头的组织下的用户
 	// 使用JOIN查询用户组织关联表和组织表
 	baseQuery := `
-        FROM users u
-        INNER JOIN user_organizations uo ON u.id = uo.user_id
-        INNER JOIN organizations o ON uo.organization_id = o.id
+        FROM sys_users u
+        INNER JOIN sys_user_organizations uo ON u.id = uo.user_id
+        INNER JOIN sys_organizations o ON uo.organization_id = o.id
         WHERE (o.path LIKE ? OR o.path = ?)
           AND u.deleted_at IS NULL
           AND o.deleted_at IS NULL

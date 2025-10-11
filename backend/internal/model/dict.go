@@ -34,3 +34,13 @@ type DictItem struct {
 	// 关联关系
 	Dict Dict `json:"dict" gorm:"foreignKey:DictID"`
 }
+
+// TableName 指定表名
+func (Dict) TableName() string {
+	return "sys_dicts"
+}
+
+// TableName 指定表名
+func (DictItem) TableName() string {
+	return "sys_dict_items"
+}

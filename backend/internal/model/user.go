@@ -24,8 +24,13 @@ type User struct {
 	DeletedAt   gorm.DeletedAt `json:"-" gorm:"index"`
 
 	// 关联关系
-	Organizations []Organization `json:"organizations" gorm:"many2many:user_organizations;"`
-	Roles         []Role         `json:"roles" gorm:"many2many:user_roles;"`
+	Organizations []Organization `json:"organizations" gorm:"many2many:sys_user_organizations;"`
+	Roles         []Role         `json:"roles" gorm:"many2many:sys_user_roles;"`
+}
+
+// TableName 指定表名
+func (User) TableName() string {
+	return "sys_users"
 }
 
 type UserRole struct {
@@ -33,7 +38,17 @@ type UserRole struct {
 	RoleID int64 `json:"role_id,string" gorm:"primaryKey"`
 }
 
+// TableName 指定表名
+func (UserRole) TableName() string {
+	return "sys_user_roles"
+}
+
 type UserOrganization struct {
 	UserID         int64 `json:"user_id,string" gorm:"primaryKey"`
 	OrganizationID int64 `json:"organization_id,string" gorm:"primaryKey"`
+}
+
+// TableName 指定表名
+func (UserOrganization) TableName() string {
+	return "sys_user_organizations"
 }
