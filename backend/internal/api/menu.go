@@ -188,3 +188,27 @@ func (h *MenuHandler) GetMenuTree(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"menus": menus})
 }
+
+// GetUserMenus 获取当前用户的菜单
+func (h *MenuHandler) GetUserMenus(c *gin.Context) {
+	// 从JWT中获取用户ID
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "未找到用户信息"})
+		return
+	}
+
+	userIDInt, ok := userID.(int64)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "用户ID格式错误"})
+		return
+	}
+
+	menus, err := h.menuService.GetUserMenus(userIDInt)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "获取用户菜单失败"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"menus": menus})
+}

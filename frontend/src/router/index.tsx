@@ -1,29 +1,37 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import { useMenuStore } from '../store/menuStore';
 import Login from '../pages/Login';
-import Layout from '../components/Layout';
 import Dashboard from '../pages/Dashboard';
+import Layout from '../components/Layout';
+import { generateRoutes } from './dynamicRoutes';
 
-// 用户管理路由
-import UserManagement from '../pages/user/UserManagement';
-
-// 组织管理路由
-import OrganizationManagement from '../pages/organization/OrganizationManagement';
-
-// 角色管理路由
-import RoleManagement from '../pages/role/RoleManagement';
-
-// 菜单管理路由
-import MenuManagement from '../pages/menu/MenuManagement';
-
-// 字典管理路由
+// 临时导入dict页面用于测试
 import DictList from '../pages/dict/DictList';
-import DictItemList from '../pages/dict/DictItemList';
 
 const AppRoutes: React.FC = () => {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
+  const { userMenus, loadUserMenus, clearMenus } = useMenuStore();
+  const [dynamicRoutes, setDynamicRoutes] = React.useState<React.ReactElement[]>([]);
 
+  // 获取用户菜单并生成路由
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      // 如果菜单还没有加载，立即开始加载
+      if (userMenus.length === 0) {
+        loadUserMenus();
+      } else {
+        // 菜单已加载，生成路由
+        const routes = generateRoutes(userMenus);
+        setDynamicRoutes(routes);
+      }
+    } else {
+      clearMenus();
+      setDynamicRoutes([]);
+    }
+  }, [isAuthenticated, user, userMenus, loadUserMenus, clearMenus]);
+ 
   if (!isAuthenticated) {
     return <Login />;
   }
@@ -33,31 +41,12 @@ const AppRoutes: React.FC = () => {
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        
-        {/* 用户管理路由 */}
-        <Route path="/users" element={<UserManagement />} />
-        <Route path="/users/*" element={<UserManagement />} />
-        
-        {/* 组织管理路由 */}
-        <Route path="/organizations" element={<OrganizationManagement />} />
-        <Route path="/organizations/*" element={<OrganizationManagement />} />
-        
-        {/* 角色管理路由 */}
-        <Route path="/roles" element={<RoleManagement />} />
-        <Route path="/roles/*" element={<RoleManagement />} />
-        
-        {/* 菜单管理路由 */}
-        <Route path="/menus" element={<MenuManagement />} />
-        <Route path="/menus/*" element={<MenuManagement />} />
-        
-        {/* 字典管理路由 */}
+        {/* 临时添加dict路由用于测试 */}
         <Route path="/dict" element={<DictList />} />
-        <Route path="/dict/items/:dictId" element={<DictItemList />} />
+        {dynamicRoutes}
       </Routes>
     </Layout>
   );
 };
 
 export default AppRoutes;
-export { menuRoutes, userMenuRoutes } from './routes';
-export { routeConfigs, getMenuConfig } from './config';

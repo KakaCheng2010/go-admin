@@ -8,7 +8,8 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useDictStore } from '../store/dictStore';
-import { menuRoutes, userMenuRoutes } from '../router';
+import { useMenuStore } from '../store/menuStore';
+import { generateMenuItems } from '../router/dynamicRoutes';
 
 const { Header, Sider, Content } = AntLayout;
 
@@ -22,6 +23,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const { user, logout, isAuthenticated } = useAuthStore();
   const { loadAllDicts } = useDictStore();
+  const { userMenus } = useMenuStore();
   const { token } = theme.useToken();
 
   // 检查认证状态
@@ -40,17 +42,22 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     }
   }, [isAuthenticated, loadAllDicts]);
 
-  const menuItems = menuRoutes.map(route => ({
-    key: route.key,
-    icon: route.icon,
-    label: route.label,
-  }));
+  // 生成动态菜单项
+  const menuItems = generateMenuItems(userMenus);
 
-  const userMenuItems = userMenuRoutes.map(route => ({
-    key: route.key,
-    icon: route.icon,
-    label: route.label,
-  }));
+  // 用户菜单项（固定）
+  const userMenuItems = [
+    {
+      key: 'profile',
+      icon: <UserOutlined />,
+      label: '个人资料',
+    },
+    {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: '退出登录',
+    },
+  ];
 
   const handleMenuClick = ({ key }: { key: string }) => {
     navigate(key);

@@ -61,6 +61,11 @@ export const menuService = {
     return response.data.menus;
   },
 
+  getUserMenus: async (): Promise<Menu[]> => {
+    const response = await api.get('/menus/user');
+    return response.data.menus;
+  },
+
   getMenu: async (id: string): Promise<Menu> => {
     const response = await api.get(`/menus/${id}`);
     return response.data;

@@ -94,3 +94,24 @@ func (s *MenuService) GetMenuTree() ([]model.Menu, error) {
 	err := s.db.Where("parent_id IS NULL").Preload("Children").Order("sort ASC, id ASC").Find(&menus).Error
 	return menus, err
 }
+
+// GetUserMenus 根据用户ID获取用户有权限的菜单（去重）
+func (s *MenuService) GetUserMenus(userID int64) ([]model.Menu, error) {
+	var menus []model.Menu
+
+	// 通过用户角色关联查询菜单，并去重
+	err := s.db.Table("sys_menus").
+		Select("DISTINCT sys_menus.*").
+		Joins("JOIN sys_role_menus ON sys_menus.id = sys_role_menus.menu_id").
+		Joins("JOIN sys_user_roles ON sys_role_menus.role_id = sys_user_roles.role_id").
+		Where("sys_user_roles.user_id = ? AND sys_menus.status = '1' AND sys_menus.hidden = false", userID).
+		Order("sys_menus.sort ASC, sys_menus.id ASC").
+		Find(&menus).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	// 直接返回菜单数据，不处理树形结构
+	return menus, nil
+}

@@ -85,6 +85,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, rdb *redis.Client) *gin.Engine
 				menus.POST("", menuHandler.CreateMenu)
 				menus.GET("", menuHandler.ListMenus)
 				menus.GET("/tree", menuHandler.GetMenuTree)
+				menus.GET("/user", menuHandler.GetUserMenus) // 获取当前用户的菜单
 				menus.GET("/:id", menuHandler.GetMenu)
 				menus.PUT("/:id", menuHandler.UpdateMenu)
 				menus.DELETE("/:id", menuHandler.DeleteMenu)
