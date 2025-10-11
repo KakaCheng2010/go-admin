@@ -1,4 +1,5 @@
 import api from './api';
+import { Role } from './role';
 
 export interface User {
   id: string; // 雪花ID
@@ -10,6 +11,7 @@ export interface User {
   status: string;
   created_at: string;
   updated_at: string;
+  roles?: Role[];
 }
 
 export interface CreateUserRequest {

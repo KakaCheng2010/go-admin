@@ -76,6 +76,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, rdb *redis.Client) *gin.Engine
 				roles.PUT("/:id", roleHandler.UpdateRole)
 				roles.DELETE("/:id", roleHandler.DeleteRole)
 				roles.POST("/:id/menus", roleHandler.AssignMenus)
+				roles.POST("/:id/users", roleHandler.AssignUsers)
 			}
 
 			// 菜单管理

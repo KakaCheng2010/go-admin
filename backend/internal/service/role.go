@@ -52,5 +52,43 @@ func (s *RoleService) AssignMenus(roleID int64, menuIDs []int64) error {
 		return err
 	}
 
-	return s.db.Model(&role).Association("Menus").Replace(menus)
+	// 清除现有关联
+	if err := s.db.Model(&role).Association("Menus").Clear(); err != nil {
+		return err
+	}
+
+	// 添加新关联
+	if len(menus) > 0 {
+		if err := s.db.Model(&role).Association("Menus").Append(menus); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (s *RoleService) AssignUsers(roleID int64, userIDs []int64) error {
+	var role model.Role
+	if err := s.db.First(&role, roleID).Error; err != nil {
+		return err
+	}
+
+	var users []model.User
+	if err := s.db.Where("id IN ?", userIDs).Find(&users).Error; err != nil {
+		return err
+	}
+
+	// 清除现有关联
+	if err := s.db.Model(&role).Association("Users").Clear(); err != nil {
+		return err
+	}
+
+	// 添加新关联
+	if len(users) > 0 {
+		if err := s.db.Model(&role).Association("Users").Append(users); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

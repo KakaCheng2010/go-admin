@@ -54,7 +54,11 @@ export const roleService = {
     await api.delete(`/roles/${id}`);
   },
 
-  assignMenus: async (id: number, menuIds: number[]): Promise<void> => {
+  assignMenus: async (id: number, menuIds: string[]): Promise<void> => {
     await api.post(`/roles/${id}/menus`, { menu_ids: menuIds });
+  },
+
+  assignUsers: async (id: number, userIds: string[]): Promise<void> => {
+    await api.post(`/roles/${id}/users`, { user_ids: userIds });
   },
 };

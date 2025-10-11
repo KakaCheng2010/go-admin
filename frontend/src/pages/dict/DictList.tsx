@@ -137,18 +137,19 @@ const DictList: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      width: 200,
+      width: 120,
       render: (_: any, record: Dict) => (
-        <Space size="middle">
+        <Space size="small">
           <Button
             type="link"
             icon={<EyeOutlined />}
             onClick={() => handleViewItems(record)}
+            title='字典项'
           >
-            字典项
+            
           </Button>
-          <Button type="link" icon={<EditOutlined />} onClick={() => openEditModal(record)}>
-            编辑
+          <Button type="link" icon={<EditOutlined />} onClick={() => openEditModal(record)} title='编辑'>
+            
           </Button>
           <Popconfirm
             title="确定要删除这个字典吗？"
@@ -156,8 +157,7 @@ const DictList: React.FC = () => {
             okText="确定"
             cancelText="取消"
           >
-            <Button type="link" danger icon={<DeleteOutlined />}>
-              删除
+            <Button type="link" danger icon={<DeleteOutlined />} title='删除'>
             </Button>
           </Popconfirm>
         </Space>

@@ -254,7 +254,7 @@ func (h *UserHandler) AssignRoles(c *gin.Context) {
 	}
 
 	var req struct {
-		RoleIDs []int64 `json:"role_ids" binding:"required"`
+		RoleIDs []string `json:"role_ids" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -262,8 +262,19 @@ func (h *UserHandler) AssignRoles(c *gin.Context) {
 		return
 	}
 
-	if err := h.userService.AssignRoles(id, req.RoleIDs); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "分配角色失败"})
+	// 将字符串ID转换为int64
+	roleIDs := make([]int64, len(req.RoleIDs))
+	for i, roleIDStr := range req.RoleIDs {
+		roleID, err := strconv.ParseInt(roleIDStr, 10, 64)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "无效的角色ID: " + roleIDStr})
+			return
+		}
+		roleIDs[i] = roleID
+	}
+
+	if err := h.userService.AssignRoles(id, roleIDs); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "分配角色失败: " + err.Error()})
 		return
 	}
 

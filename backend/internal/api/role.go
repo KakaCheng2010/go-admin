@@ -138,7 +138,7 @@ func (h *RoleHandler) AssignMenus(c *gin.Context) {
 	}
 
 	var req struct {
-		MenuIDs []int64 `json:"menu_ids" binding:"required"`
+		MenuIDs []string `json:"menu_ids" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -146,10 +146,56 @@ func (h *RoleHandler) AssignMenus(c *gin.Context) {
 		return
 	}
 
-	if err := h.roleService.AssignMenus(id, req.MenuIDs); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "分配菜单失败"})
+	// 将字符串ID转换为int64
+	menuIDs := make([]int64, len(req.MenuIDs))
+	for i, menuIDStr := range req.MenuIDs {
+		menuID, err := strconv.ParseInt(menuIDStr, 10, 64)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "无效的菜单ID: " + menuIDStr})
+			return
+		}
+		menuIDs[i] = menuID
+	}
+
+	if err := h.roleService.AssignMenus(id, menuIDs); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "分配菜单失败: " + err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "菜单分配成功"})
+}
+
+func (h *RoleHandler) AssignUsers(c *gin.Context) {
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的角色ID"})
+		return
+	}
+
+	var req struct {
+		UserIDs []string `json:"user_ids" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 将字符串ID转换为int64
+	userIDs := make([]int64, len(req.UserIDs))
+	for i, userIDStr := range req.UserIDs {
+		userID, err := strconv.ParseInt(userIDStr, 10, 64)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "无效的用户ID: " + userIDStr})
+			return
+		}
+		userIDs[i] = userID
+	}
+
+	if err := h.roleService.AssignUsers(id, userIDs); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "分配用户失败: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "用户分配成功"})
 }

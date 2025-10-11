@@ -181,7 +181,12 @@ const OrganizationManagement: React.FC = () => {
   const handleEdit = (org: Organization) => {
     setEditingOrg(org);
     setModalVisible(true);
-    form.setFieldsValue(org);
+    // 确保parent_id是字符串格式
+    const formData = {
+      ...org,
+      parent_id: org.parent_id ? String(org.parent_id) : undefined
+    };
+    form.setFieldsValue(formData);
   };
 
   const handleDelete = async (id: string) => {
@@ -263,15 +268,17 @@ const OrganizationManagement: React.FC = () => {
     {
       title: '操作',
       key: 'action',
+      width: 120,
       render: (_: any, record: Organization) => (
-        <Space size="middle">
+        <Space size="small">
           <Button
             type="link"
             size="small"
             icon={<EditOutlined />}
+            title='修改'
             onClick={() => handleEdit(record)}
           >
-            修改
+            
           </Button>
           <Popconfirm
             title="确定要删除这个组织吗？"
@@ -281,9 +288,10 @@ const OrganizationManagement: React.FC = () => {
               type="link"
               size="small"
               danger
+              title='删除'
               icon={<DeleteOutlined />}
             >
-              删除
+              
             </Button>
           </Popconfirm>
         </Space>
@@ -360,24 +368,8 @@ const OrganizationManagement: React.FC = () => {
           layout="vertical"
           onFinish={handleSubmit}
         >
-          <Form.Item
-            name="name"
-            label="组织名称"
-            rules={[{ required: true, message: '请输入组织名称' }]}
-          >
-            <Input />
-          </Form.Item>
 
-          <Form.Item
-            name="code"
-            label="组织编码"
-            rules={[{ required: true, message: '请输入组织编码' }]}
-          >
-            <Input />
-          </Form.Item>
-
-          {!editingOrg && (
-            <Form.Item
+<Form.Item
               name="parent_id"
               label="上级组织"
             >
@@ -394,7 +386,24 @@ const OrganizationManagement: React.FC = () => {
                 style={{ width: '100%' }}
               />
             </Form.Item>
-          )}
+          
+          <Form.Item
+            name="name"
+            label="组织名称"
+            rules={[{ required: true, message: '请输入组织名称' }]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            name="code"
+            label="组织编码"
+            rules={[{ required: true, message: '请输入组织编码' }]}
+          >
+            <Input />
+          </Form.Item>
+
+          
 
 
           <Form.Item
@@ -408,7 +417,7 @@ const OrganizationManagement: React.FC = () => {
           <Form.Item
             name="status"
             label="状态"
-            initialValue={1}
+            initialValue="1"
           >
             <Select loading={statusLoading}>
               {statusOptions.map(option => (

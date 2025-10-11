@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Table, Button, Space, Tag, message, Modal, Form, Input, InputNumber, Select } from 'antd';
+import { Card, Table, Button, Space, Tag, message, Modal, Form, Input, InputNumber, Select, Tree } from 'antd';
 import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
   ReloadOutlined,
+  LinkOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 import { roleService, Role, CreateRoleRequest, UpdateRoleRequest } from '../../services/role';
+import { menuService, Menu } from '../../services/menu';
+import UserSelector from '../../components/UserSelector';
 import { useDict } from '../../hooks/useDict';
 
 const RoleManagement: React.FC = () => {
@@ -16,6 +20,16 @@ const RoleManagement: React.FC = () => {
   const [editingRole, setEditingRole] = useState<Role | null>(null);
   const [form] = Form.useForm();
   const { dictOptions: statusOptions, loading: statusLoading } = useDict('status');
+  
+  // 关联菜单相关状态
+  const [menuModalVisible, setMenuModalVisible] = useState(false);
+  const [menuTreeData, setMenuTreeData] = useState<Menu[]>([]);
+  const [selectedMenuKeys, setSelectedMenuKeys] = useState<React.Key[]>([]);
+  const [currentRole, setCurrentRole] = useState<Role | null>(null);
+  
+  // 分配用户相关状态
+  const [userModalVisible, setUserModalVisible] = useState(false);
+  const [selectedUserKeys, setSelectedUserKeys] = useState<React.Key[]>([]);
 
   const loadRoles = async () => {
     setLoading(true);
@@ -32,6 +46,18 @@ const RoleManagement: React.FC = () => {
   useEffect(() => {
     loadRoles();
   }, []);
+
+  // 加载菜单树数据
+  const loadMenuTree = async () => {
+    try {
+      const data = await menuService.getMenuTree();
+      setMenuTreeData(data);
+    } catch (error) {
+      message.error('加载菜单树失败');
+    }
+  };
+
+
 
   const handleCreate = () => {
     setEditingRole(null);
@@ -68,6 +94,72 @@ const RoleManagement: React.FC = () => {
       loadRoles();
     } catch (error: any) {
       message.error(error.response?.data?.error || '操作失败');
+    }
+  };
+
+  // 处理关联菜单
+  const handleAssignMenus = async (role: Role) => {
+    setCurrentRole(role);
+    setMenuModalVisible(true);
+    await loadMenuTree();
+    
+    // 获取角色已关联的菜单
+    try {
+      const roleData = await roleService.getRole(role.id);
+      const roleMenuIds = roleData.menus?.map(menu => menu.id.toString()) || [];
+      setSelectedMenuKeys(roleMenuIds);
+    } catch (error) {
+      setSelectedMenuKeys([]);
+    }
+  };
+
+  // 保存菜单关联
+  const handleSaveMenuAssignment = async () => {
+    if (!currentRole) return;
+    
+    try {
+      // 直接发送字符串ID，让后端处理转换
+      const menuIds = selectedMenuKeys.map(key => key as string);
+      console.log('发送的菜单ID:', menuIds); // 调试日志
+      await roleService.assignMenus(currentRole.id, menuIds);
+      message.success('菜单关联成功');
+      setMenuModalVisible(false);
+      setCurrentRole(null);
+      setSelectedMenuKeys([]);
+    } catch (error: any) {
+      message.error(error.response?.data?.error || '关联菜单失败');
+    }
+  };
+
+  // 处理分配用户
+  const handleAssignUsers = async (role: Role) => {
+    setCurrentRole(role);
+    setUserModalVisible(true);
+    
+    // 获取角色已分配的用户
+    try {
+      const roleData = await roleService.getRole(role.id);
+      const roleUserIds = roleData.users?.map((user: any) => user.id.toString()) || [];
+      setSelectedUserKeys(roleUserIds);
+    } catch (error) {
+      setSelectedUserKeys([]);
+    }
+  };
+
+
+  // 保存用户分配
+  const handleSaveUserAssignment = async (userIds: string[]) => {
+    if (!currentRole) return;
+    
+    try {
+      console.log('发送的用户ID:', userIds); // 调试日志
+      await roleService.assignUsers(currentRole.id, userIds);
+      message.success('用户分配成功');
+      setUserModalVisible(false);
+      setCurrentRole(null);
+      setSelectedUserKeys([]);
+    } catch (error: any) {
+      message.error(error.response?.data?.error || '分配用户失败');
     }
   };
 
@@ -108,22 +200,39 @@ const RoleManagement: React.FC = () => {
     {
       title: '操作',
       key: 'action',
+      width: 120,
       render: (_: any, record: Role) => (
-        <Space size="middle">
+        <Space size="small">
           <Button
             type="link"
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
+            title='编辑'
           >
-            编辑
+            
+          </Button>
+          <Button
+            type="link"
+            icon={<LinkOutlined />}
+            onClick={() => handleAssignMenus(record)}
+            title='关联菜单'
+          >
+          
+          </Button>
+          <Button
+            type="link"
+            icon={<UserOutlined />}
+            onClick={() => handleAssignUsers(record)}
+            title='分配用户'
+          >
           </Button>
           <Button
             type="link"
             danger
             icon={<DeleteOutlined />}
             onClick={() => handleDelete(record.id)}
+            title='删除'
           >
-            删除
           </Button>
         </Space>
       ),
@@ -227,6 +336,43 @@ const RoleManagement: React.FC = () => {
           </Form.Item>
         </Form>
       </Modal>
+
+      {/* 关联菜单对话框 */}
+      <Modal
+        title={`关联菜单 - ${currentRole?.name}`}
+        open={menuModalVisible}
+        onCancel={() => {
+          setMenuModalVisible(false);
+          setCurrentRole(null);
+          setSelectedMenuKeys([]);
+        }}
+        onOk={handleSaveMenuAssignment}
+        width={600}
+        okText="保存"
+        cancelText="取消"
+      >
+        <Tree
+          checkable
+          checkedKeys={selectedMenuKeys}
+          onCheck={(checkedKeys) => setSelectedMenuKeys(checkedKeys as React.Key[])}
+          treeData={menuTreeData}
+          fieldNames={{ title: 'name', key: 'id', children: 'children' }}
+          defaultExpandAll
+        />
+      </Modal>
+
+      {/* 分配用户对话框 */}
+      <UserSelector
+        visible={userModalVisible}
+        title={`分配用户 - ${currentRole?.name}`}
+        selectedUserKeys={selectedUserKeys}
+        onCancel={() => {
+          setUserModalVisible(false);
+          setCurrentRole(null);
+          setSelectedUserKeys([]);
+        }}
+        onOk={handleSaveUserAssignment}
+      />
     </div>
   );
 };

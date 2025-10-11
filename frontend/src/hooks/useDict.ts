@@ -10,7 +10,7 @@ export const useDict = (dictCode: string) => {
   
   const dictOptions: DictOption[] = dictData[dictCode]?.map(item => ({
     label: item.label,
-    value: item.value
+    value: String(item.value) // 确保所有字典值都是字符串
   })) || [];
 
   return {

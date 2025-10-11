@@ -12,7 +12,7 @@ interface DictStore {
   loadDict: (dictCode: string) => Promise<void>;
   loadAllDicts: () => Promise<void>;
   getDictOptions: (dictCode: string, valueType?: 'string' | 'number') => Array<{ label: string; value: string | number }>;
-  getStatusOptions: () => Array<{ label: string; value: number }>;
+  getStatusOptions: () => Array<{ label: string; value: string }>;
 }
 
 export const useDictStore = create<DictStore>((set, get) => ({
@@ -85,22 +85,25 @@ export const useDictStore = create<DictStore>((set, get) => ({
       label: item.label,
       value: valueType === 'number' 
         ? (typeof item.value === 'string' ? parseInt(item.value) : item.value)
-        : item.value
-    }));
+        : String(item.value) // 确保返回字符串
+    })) as Array<{ label: string; value: string | number }>;
   },
 
   getStatusOptions: () => {
-    const { getDictOptions } = get();
-    const options = getDictOptions('STATUS', 'number');
+    const { dictData } = get();
+    const dictItems = dictData['status'] || [];
     
     // 如果状态字典加载失败，返回默认选项
-    if (options.length === 0) {
+    if (dictItems.length === 0) {
       return [
-        { label: '正常', value: 1 },
-        { label: '禁用', value: 0 }
+        { label: '正常', value: '1' },
+        { label: '禁用', value: '0' }
       ];
     }
     
-    return options;
+    return dictItems.map(item => ({
+      label: item.label,
+      value: String(item.value) // 确保返回字符串
+    }));
   }
 }));

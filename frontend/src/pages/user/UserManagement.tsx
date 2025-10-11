@@ -24,9 +24,11 @@ import {
   SearchOutlined,
   UploadOutlined,
   DownloadOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 import { userService, User, CreateUserRequest, UpdateUserRequest } from '../../services/user';
 import { organizationService, Organization } from '../../services/organization';
+import { roleService, Role } from '../../services/role';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import OrganizationTree from '../../components/OrganizationTree';
@@ -53,6 +55,12 @@ const UserManagement: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
   const { dictOptions: statusOptions, loading: statusLoading } = useDict('status');
+  
+  // 分配角色相关状态
+  const [roleModalVisible, setRoleModalVisible] = useState(false);
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [selectedRoleKeys, setSelectedRoleKeys] = useState<React.Key[]>([]);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   // 检查认证状态
   useEffect(() => {
@@ -81,6 +89,16 @@ const UserManagement: React.FC = () => {
       setOrganizations(organizations);
     } catch (error: any) {
       message.error('加载组织列表失败');
+    }
+  };
+
+  // 加载角色数据
+  const loadRoles = async () => {
+    try {
+      const roles = await roleService.getRoles();
+      setRoles(roles);
+    } catch (error: any) {
+      message.error('加载角色列表失败');
     }
   };
 
@@ -277,6 +295,40 @@ const UserManagement: React.FC = () => {
     }
   };
 
+  // 处理分配角色
+  const handleAssignRoles = async (user: User) => {
+    setCurrentUser(user);
+    setRoleModalVisible(true);
+    await loadRoles();
+    
+    // 获取用户已分配的角色
+    try {
+      const userData = await userService.getUser(user.id);
+      const userRoleIds = userData.roles?.map((role: any) => role.id.toString()) || [];
+      setSelectedRoleKeys(userRoleIds);
+    } catch (error) {
+      setSelectedRoleKeys([]);
+    }
+  };
+
+  // 保存角色分配
+  const handleSaveRoleAssignment = async () => {
+    if (!currentUser) return;
+    
+    try {
+      // 直接发送字符串ID，让后端处理转换
+      const roleIds = selectedRoleKeys.map(key => key as string);
+      console.log('发送的角色ID:', roleIds); // 调试日志
+      await userService.assignRoles(currentUser.id, roleIds);
+      message.success('角色分配成功');
+      setRoleModalVisible(false);
+      setCurrentUser(null);
+      setSelectedRoleKeys([]);
+    } catch (error: any) {
+      message.error(error.response?.data?.error || '分配角色失败');
+    }
+  };
+
   const columns = [
     {
       title: '序号',
@@ -288,27 +340,25 @@ const UserManagement: React.FC = () => {
     },
     {
       title: '用户名',
+      width: 100,
       dataIndex: 'username',
       key: 'username',
-      sorter: true,
     },
     {
       title: '真实姓名',
+      width: 120,
       dataIndex: 'real_name',
       key: 'real_name',
-      sorter: true,
     },
     {
       title: '手机号',
+      width: 200,
       dataIndex: 'phone',
-      key: 'phone',
-      sorter: true,
     },
     {
       title: '状态',
       dataIndex: 'status',
       key: 'status',
-      sorter: true,
       render: (status: string) => {
         const statusOption = statusOptions.find(option => option.value === status);
         return (
@@ -322,7 +372,7 @@ const UserManagement: React.FC = () => {
       title: '创建时间',
       dataIndex: 'created_at',
       key: 'created_at',
-      sorter: true,
+      width: 200,
       render: (date: string) => {
         return new Date(date).toLocaleString('zh-CN', {
           year: 'numeric',
@@ -337,25 +387,36 @@ const UserManagement: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      width: 80,
+      width: 120,
       render: (_: any, record: User) => (
-        <Space size="middle">
+        <Space size="small" wrap>
           <Button
             type="link"
+            size="small"
             icon={<EditOutlined />}
+            title="编辑"
             onClick={() => handleEdit(record)}
-          >
-            编辑
-          </Button>
+          />
+          <Button
+            type="link"
+            size="small"
+            icon={<UserOutlined />}
+            title="分配角色"
+            onClick={() => handleAssignRoles(record)}
+          />
           <Popconfirm
             title="确定要删除这个用户吗？"
             onConfirm={() => handleDelete(record.id)}
             okText="确定"
             cancelText="取消"
           >
-            <Button type="link" danger icon={<DeleteOutlined />}>
-              删除
-            </Button>
+            <Button 
+              type="link" 
+              size="small" 
+              danger 
+              icon={<DeleteOutlined />}
+              title="删除"
+            />
           </Popconfirm>
         </Space>
       ),
@@ -552,7 +613,7 @@ const UserManagement: React.FC = () => {
           <Form.Item
             name="status"
             label="状态"
-            initialValue={1}
+            initialValue="1"
           >
             <Select loading={statusLoading}>
               {statusOptions.map(option => (
@@ -574,6 +635,48 @@ const UserManagement: React.FC = () => {
             </Space>
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* 分配角色对话框 */}
+      <Modal
+        title={`分配角色 - ${currentUser?.username}`}
+        open={roleModalVisible}
+        onCancel={() => {
+          setRoleModalVisible(false);
+          setCurrentUser(null);
+          setSelectedRoleKeys([]);
+        }}
+        onOk={handleSaveRoleAssignment}
+        width={600}
+        okText="保存"
+        cancelText="取消"
+      >
+        <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+          {roles.map(role => (
+            <div key={role.id} style={{ marginBottom: 8 }}>
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={selectedRoleKeys.includes(role.id.toString())}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedRoleKeys([...selectedRoleKeys, role.id.toString()]);
+                    } else {
+                      setSelectedRoleKeys(selectedRoleKeys.filter(key => key !== role.id.toString()));
+                    }
+                  }}
+                  style={{ marginRight: 8 }}
+                />
+                <span>{role.name} ({role.code})</span>
+                {role.description && (
+                  <span style={{ color: '#666', marginLeft: 8, fontSize: '12px' }}>
+                    - {role.description}
+                  </span>
+                )}
+              </label>
+            </div>
+          ))}
+        </div>
       </Modal>
     </div>
   );

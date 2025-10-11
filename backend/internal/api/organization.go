@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"go-admin/internal/model"
 	"go-admin/internal/service"
 	"go-admin/internal/utils"
@@ -146,6 +147,7 @@ func (h *OrganizationHandler) UpdateOrganization(c *gin.Context) {
 		}
 		newPath = parentOrg.Path + "/" + strconv.FormatInt(id, 10)
 	} else {
+		newParentID = nil
 		newPath = strconv.FormatInt(id, 10)
 	}
 
@@ -156,6 +158,9 @@ func (h *OrganizationHandler) UpdateOrganization(c *gin.Context) {
 	org.Sort = req.Sort
 	org.Status = req.Status
 	org.Description = req.Description
+
+	// 调试日志
+	fmt.Printf("更新组织 ID=%d, ParentID=%v, Path=%s\n", org.ID, org.ParentID, org.Path)
 	// 设置操作人
 	if operatorID, ok := c.Get("user_id"); ok {
 		org.UpdatedBy = operatorID.(int64)

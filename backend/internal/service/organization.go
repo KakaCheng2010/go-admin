@@ -47,7 +47,31 @@ func (s *OrganizationService) UpdateOrganization(org *model.Organization) error 
 		}
 	}
 
-	return s.db.Save(org).Error
+	// 获取旧的组织信息，用于比较路径变化
+	var oldOrg model.Organization
+	if err := s.db.First(&oldOrg, org.ID).Error; err != nil {
+		return fmt.Errorf("组织不存在")
+	}
+
+	// 保存组织更新 - 使用Select指定要更新的字段
+	if err := s.db.Model(org).Select("name", "code", "parent_id", "path", "sort", "status", "description", "updated_by").Updates(org).Error; err != nil {
+		return err
+	}
+
+	// 如果路径发生变化，需要更新所有子组织的路径
+	if oldOrg.Path != org.Path {
+		oldPrefix := oldOrg.Path + "/"
+		newPrefix := org.Path + "/"
+
+		// 更新所有子组织的路径
+		if err := s.db.Model(&model.Organization{}).
+			Where("path LIKE ?", oldPrefix+"%").
+			Update("path", gorm.Expr("REPLACE(path, ?, ?)", oldPrefix, newPrefix)).Error; err != nil {
+			return fmt.Errorf("更新子组织路径失败: %v", err)
+		}
+	}
+
+	return nil
 }
 
 func (s *OrganizationService) DeleteOrganization(id int64) error {

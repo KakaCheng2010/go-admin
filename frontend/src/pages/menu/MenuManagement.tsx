@@ -146,11 +146,6 @@ const MenuManagement: React.FC = () => {
       key: 'code',
     },
     {
-      title: '路径',
-      dataIndex: 'path',
-      key: 'path',
-    },
-    {
       title: '组件',
       dataIndex: 'component',
       key: 'component',
@@ -186,22 +181,25 @@ const MenuManagement: React.FC = () => {
     {
       title: '操作',
       key: 'action',
+      width: 120,
       render: (_: any, record: Menu) => (
-        <Space size="middle">
+        <Space size="small">
           <Button
             type="link"
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
+            title='编辑'
           >
-            编辑
+          
           </Button>
           <Button
             type="link"
             danger
             icon={<DeleteOutlined />}
             onClick={() => handleDelete(record.id)}
+            title='删除'
           >
-            删除
+            
           </Button>
         </Space>
       ),
