@@ -44,6 +44,7 @@ export interface CreateDictItemRequest {
 }
 
 export interface UpdateDictItemRequest {
+  dict_id?: string;
   label?: string;
   value?: string;
   sort?: number;

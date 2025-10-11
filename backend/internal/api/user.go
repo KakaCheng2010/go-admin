@@ -24,14 +24,14 @@ type CreateUserRequest struct {
 	Phone          string `json:"phone"`
 	RealName       string `json:"real_name"`
 	OrganizationID string `json:"organization_id"`
-	Status         int    `json:"status"`
+	Status         string `json:"status"`
 }
 
 type UpdateUserRequest struct {
 	Email    string `json:"email"`
 	Phone    string `json:"phone"`
 	RealName string `json:"real_name"`
-	Status   int    `json:"status"`
+	Status   string `json:"status"`
 }
 
 func (h *UserHandler) CreateUser(c *gin.Context) {
@@ -208,9 +208,7 @@ func (h *UserHandler) ListUsers(c *gin.Context) {
 			filters.Phone = phone
 		}
 		if statusStr != "" {
-			if v, err := strconv.Atoi(statusStr); err == nil {
-				filters.Status = &v
-			}
+			filters.Status = &statusStr
 		}
 	}
 

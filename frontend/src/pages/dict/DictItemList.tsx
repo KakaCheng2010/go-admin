@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Table, Button, Space, Tag, message, Popconfirm, Breadcrumb } from 'antd';
+import { Card, Table, Button, Space, Tag, message, Popconfirm, Breadcrumb, Modal, Form, Input, InputNumber, Select } from 'antd';
 import {
   PlusOutlined,
   EditOutlined,
@@ -14,6 +14,11 @@ const DictItemList: React.FC = () => {
   const [items, setItems] = useState<DictItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [dict, setDict] = useState<Dict | null>(null);
+  const [createVisible, setCreateVisible] = useState(false);
+  const [editVisible, setEditVisible] = useState(false);
+  const [editingItem, setEditingItem] = useState<DictItem | null>(null);
+  const [form] = Form.useForm();
+  const [editForm] = Form.useForm();
   const navigate = useNavigate();
   const { dictId } = useParams<{ dictId: string }>();
   const location = useLocation();
@@ -61,6 +66,67 @@ const DictItemList: React.FC = () => {
     }
   };
 
+  // 打开新增弹窗
+  const openCreateModal = () => {
+    form.resetFields();
+    form.setFieldsValue({ status: 1, sort: 0 });
+    setCreateVisible(true);
+  };
+
+  // 提交新增
+  const handleCreate = async () => {
+    if (!dictId) return;
+    try {
+      const values = await form.validateFields();
+      await dictService.createDictItem({
+        dict_id: dictId,
+        label: values.label,
+        value: values.value,
+        sort: values.sort,
+        status: values.status,
+      });
+      message.success('创建成功');
+      setCreateVisible(false);
+      loadItems();
+    } catch (error: any) {
+      if (error?.errorFields) return; // 表单校验错误
+      message.error(error?.response?.data?.error || '创建失败');
+    }
+  };
+
+  // 打开编辑弹窗
+  const openEditModal = (item: DictItem) => {
+    setEditingItem(item);
+    editForm.setFieldsValue({
+      label: item.label,
+      value: item.value,
+      sort: item.sort,
+      status: item.status,
+    });
+    setEditVisible(true);
+  };
+
+  // 提交编辑
+  const handleEdit = async () => {
+    if (!editingItem || !dictId) return;
+    try {
+      const values = await editForm.validateFields();
+      await dictService.updateDictItem(editingItem.id, {
+        label: values.label,
+        value: values.value,
+        sort: values.sort,
+        status: values.status,
+      });
+      message.success('更新成功');
+      setEditVisible(false);
+      setEditingItem(null);
+      loadItems();
+    } catch (error: any) {
+      if (error?.errorFields) return; // 表单校验错误
+      message.error(error?.response?.data?.error || '更新失败');
+    }
+  };
+
   const columns = [
     {
       title: '标签',
@@ -99,7 +165,7 @@ const DictItemList: React.FC = () => {
       width: 150,
       render: (_: any, record: DictItem) => (
         <Space size="middle">
-          <Button type="link" icon={<EditOutlined />}>
+          <Button type="link" icon={<EditOutlined />} onClick={() => openEditModal(record)}>
             编辑
           </Button>
           <Popconfirm
@@ -151,7 +217,7 @@ const DictItemList: React.FC = () => {
             <Button icon={<ReloadOutlined />} onClick={loadItems}>
               刷新
             </Button>
-            <Button type="primary" icon={<PlusOutlined />}>
+            <Button type="primary" icon={<PlusOutlined />} onClick={openCreateModal}>
               新增字典项
             </Button>
           </Space>
@@ -168,6 +234,75 @@ const DictItemList: React.FC = () => {
             showTotal: (total) => `共 ${total} 条记录`,
           }}
         />
+
+        <Modal
+          title="新增字典项"
+          open={createVisible}
+          onCancel={() => setCreateVisible(false)}
+          onOk={handleCreate}
+          okText="创建"
+          cancelText="取消"
+          destroyOnClose
+        >
+          <Form form={form} layout="vertical">
+            <Form.Item
+              name="label"
+              label="标签"
+              rules={[{ required: true, message: '请输入标签' }]}
+            >
+              <Input placeholder="例如：正常" />
+            </Form.Item>
+            <Form.Item
+              name="value"
+              label="值"
+              rules={[{ required: true, message: '请输入值' }]}
+            >
+              <Input placeholder="例如：1" />
+            </Form.Item>
+            <Form.Item name="sort" label="排序" initialValue={0}>
+              <InputNumber min={0} style={{ width: '100%' }} />
+            </Form.Item>
+            <Form.Item name="status" label="状态" initialValue={1}>
+              <Select options={[{ label: '正常', value: 1 }, { label: '禁用', value: 0 }]} />
+            </Form.Item>
+          </Form>
+        </Modal>
+
+        <Modal
+          title="编辑字典项"
+          open={editVisible}
+          onCancel={() => {
+            setEditVisible(false);
+            setEditingItem(null);
+          }}
+          onOk={handleEdit}
+          okText="更新"
+          cancelText="取消"
+          destroyOnClose
+        >
+          <Form form={editForm} layout="vertical">
+            <Form.Item
+              name="label"
+              label="标签"
+              rules={[{ required: true, message: '请输入标签' }]}
+            >
+              <Input placeholder="例如：正常" />
+            </Form.Item>
+            <Form.Item
+              name="value"
+              label="值"
+              rules={[{ required: true, message: '请输入值' }]}
+            >
+              <Input placeholder="例如：1" />
+            </Form.Item>
+            <Form.Item name="sort" label="排序">
+              <InputNumber min={0} style={{ width: '100%' }} />
+            </Form.Item>
+            <Form.Item name="status" label="状态">
+              <Select options={[{ label: '正常', value: 1 }, { label: '禁用', value: 0 }]} />
+            </Form.Item>
+          </Form>
+        </Modal>
       </Card>
     </div>
   );

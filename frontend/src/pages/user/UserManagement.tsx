@@ -30,6 +30,7 @@ import { organizationService, Organization } from '../../services/organization';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import OrganizationTree from '../../components/OrganizationTree';
+import { useDict } from '../../hooks/useDict';
 
  
 
@@ -51,6 +52,7 @@ const UserManagement: React.FC = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
+  const { dictOptions: statusOptions, loading: statusLoading } = useDict('status');
 
   // 检查认证状态
   useEffect(() => {
@@ -307,11 +309,14 @@ const UserManagement: React.FC = () => {
       dataIndex: 'status',
       key: 'status',
       sorter: true,
-      render: (status: number) => (
-        <Tag color={status === 1 ? 'green' : 'red'}>
-          {status === 1 ? '正常' : '禁用'}
-        </Tag>
-      ),
+      render: (status: string) => {
+        const statusOption = statusOptions.find(option => option.value === status);
+        return (
+          <Tag color={status === '1' ? 'green' : 'red'}>
+            {statusOption?.label || (status === '1' ? '正常' : '禁用')}
+          </Tag>
+        );
+      },
     },
     {
       title: '创建时间',
@@ -391,9 +396,12 @@ const UserManagement: React.FC = () => {
                   <Input placeholder="请输入手机号" style={{ width: 150 }} />
                 </Form.Item>
                 <Form.Item name="status" label="状态">
-                  <Select placeholder="请选择状态" style={{ width: 120 }} allowClear>
-                    <Select.Option value={1}>正常</Select.Option>
-                    <Select.Option value={0}>禁用</Select.Option>
+                  <Select placeholder="请选择状态" style={{ width: 120 }} allowClear loading={statusLoading}>
+                    {statusOptions.map(option => (
+                      <Select.Option key={option.value} value={option.value}>
+                        {option.label}
+                      </Select.Option>
+                    ))}
                   </Select>
                 </Form.Item>
                 
@@ -546,9 +554,12 @@ const UserManagement: React.FC = () => {
             label="状态"
             initialValue={1}
           >
-            <Select>
-              <Select.Option value={1}>正常</Select.Option>
-              <Select.Option value={0}>禁用</Select.Option>
+            <Select loading={statusLoading}>
+              {statusOptions.map(option => (
+                <Select.Option key={option.value} value={option.value}>
+                  {option.label}
+                </Select.Option>
+              ))}
             </Select>
           </Form.Item>
 

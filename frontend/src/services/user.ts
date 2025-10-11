@@ -7,7 +7,7 @@ export interface User {
   phone: string;
   real_name: string;
   avatar: string;
-  status: number;
+  status: string;
   created_at: string;
   updated_at: string;
 }
@@ -19,14 +19,14 @@ export interface CreateUserRequest {
   phone?: string;
   real_name?: string;
   organization_id?: string;
-  status?: number;
+  status?: string;
 }
 
 export interface UpdateUserRequest {
   email?: string;
   phone?: string;
   real_name?: string;
-  status?: number;
+  status?: string;
 }
 
 export interface UserListResponse {

@@ -23,6 +23,7 @@ import {
 } from '@ant-design/icons';
 import { TreeSelect } from 'antd';
 import { organizationService, Organization, CreateOrganizationRequest, UpdateOrganizationRequest } from '../../services/organization';
+import { useDict } from '../../hooks/useDict';
 
 const { Title } = Typography;
 
@@ -35,6 +36,7 @@ const OrganizationManagement: React.FC = () => {
   const [form] = Form.useForm();
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [selectedRows, setSelectedRows] = useState<Organization[]>([]);
+  const { dictOptions: statusOptions, loading: statusLoading } = useDict('status');
 
   const loadOrganizations = async () => {
     setLoading(true);
@@ -243,11 +245,14 @@ const OrganizationManagement: React.FC = () => {
       title: '状态',
       dataIndex: 'status',
       key: 'status',
-      render: (status: number) => (
-        <Tag color={status === 1 ? 'green' : 'red'}>
-          {status === 1 ? '启用' : '禁用'}
-        </Tag>
-      ),
+      render: (status: string) => {
+        const statusOption = statusOptions.find(option => option.value === status);
+        return (
+          <Tag color={status === '1' ? 'green' : 'red'}>
+            {statusOption?.label || (status === '1' ? '启用' : '禁用')}
+          </Tag>
+        );
+      },
     },
     {
       title: '描述',
@@ -405,9 +410,12 @@ const OrganizationManagement: React.FC = () => {
             label="状态"
             initialValue={1}
           >
-            <Select>
-              <Select.Option value={1}>正常</Select.Option>
-              <Select.Option value={0}>禁用</Select.Option>
+            <Select loading={statusLoading}>
+              {statusOptions.map(option => (
+                <Select.Option key={option.value} value={option.value}>
+                  {option.label}
+                </Select.Option>
+              ))}
             </Select>
           </Form.Item>
 

@@ -2,7 +2,6 @@ package api
 
 import (
 	"go-admin/internal/config"
-	"go-admin/internal/model"
 	"go-admin/internal/service"
 	"go-admin/internal/utils"
 	"net/http"
@@ -21,13 +20,6 @@ func NewAuthHandler(authService *service.AuthService) *AuthHandler {
 type LoginRequest struct {
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
-}
-
-type RegisterRequest struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-	Email    string `json:"email"`
-	RealName string `json:"real_name"`
 }
 
 func (h *AuthHandler) Login(c *gin.Context) {
@@ -60,33 +52,6 @@ func (h *AuthHandler) Login(c *gin.Context) {
 			"real_name": user.RealName,
 		},
 	})
-}
-
-func (h *AuthHandler) Register(c *gin.Context) {
-	var req RegisterRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	user := &model.User{
-		Username: req.Username,
-		Password: req.Password,
-		//Email:    req.Email,
-		RealName: req.RealName,
-		Status:   1,
-	}
-
-	if req.Email != "" {
-		user.Email = &req.Email
-	}
-
-	if err := h.authService.Register(user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusCreated, gin.H{"message": "注册成功"})
 }
 
 func (h *AuthHandler) Logout(c *gin.Context) {

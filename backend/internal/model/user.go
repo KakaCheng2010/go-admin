@@ -14,7 +14,7 @@ type User struct {
 	Phone       string         `json:"phone"`
 	RealName    string         `json:"real_name"`
 	Avatar      string         `json:"avatar"`
-	Status      int            `json:"status" gorm:"default:1"` // 1:正常 0:禁用
+	Status      string         `json:"status" gorm:"default:'1'"` // 1:正常 0:禁用
 	CreatedBy   int64          `json:"created_by,string" gorm:"index"`
 	UpdatedBy   int64          `json:"updated_by,string" gorm:"index"`
 	DeletedBy   *int64         `json:"deleted_by,string" gorm:"index"`

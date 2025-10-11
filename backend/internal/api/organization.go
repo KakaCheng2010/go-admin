@@ -23,7 +23,7 @@ type CreateOrganizationRequest struct {
 	Code        string  `json:"code" binding:"required"`
 	ParentID    *string `json:"parent_id"`
 	Sort        int     `json:"sort"`
-	Status      int     `json:"status"`
+	Status      string  `json:"status"`
 	Description string  `json:"description"`
 }
 
@@ -32,7 +32,7 @@ type UpdateOrganizationRequest struct {
 	Code        string  `json:"code"`
 	ParentID    *string `json:"parent_id"`
 	Sort        int     `json:"sort"`
-	Status      int     `json:"status"`
+	Status      string  `json:"status"`
 	Description string  `json:"description"`
 }
 

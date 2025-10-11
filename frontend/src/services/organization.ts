@@ -7,7 +7,7 @@ export interface Organization {
   parent_id?: string;
   path: string;
   sort: number;
-  status: number;
+  status: string;
   description: string;
   created_at: string;
   updated_at: string;
@@ -20,7 +20,7 @@ export interface CreateOrganizationRequest {
   code: string;
   parent_id?: string;
   sort?: number;
-  status?: number;
+  status?: string;
   description?: string;
 }
 
@@ -29,7 +29,7 @@ export interface UpdateOrganizationRequest {
   code?: string;
   parent_id?: string;
   sort?: number;
-  status?: number;
+  status?: string;
   description?: string;
 }
 

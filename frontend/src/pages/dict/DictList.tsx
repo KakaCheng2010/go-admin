@@ -14,7 +14,10 @@ const DictList: React.FC = () => {
   const [dicts, setDicts] = useState<Dict[]>([]);
   const [loading, setLoading] = useState(false);
   const [createVisible, setCreateVisible] = useState(false);
+  const [editVisible, setEditVisible] = useState(false);
+  const [editingDict, setEditingDict] = useState<Dict | null>(null);
   const [form] = Form.useForm<CreateDictRequest>();
+  const [editForm] = Form.useForm<CreateDictRequest>();
   const navigate = useNavigate();
 
   // 加载字典列表
@@ -71,6 +74,34 @@ const DictList: React.FC = () => {
     navigate(`/dict/items/${dict.id}`, { state: { dict } });
   };
 
+  // 打开编辑弹窗
+  const openEditModal = (dict: Dict) => {
+    setEditingDict(dict);
+    editForm.setFieldsValue({
+      name: dict.name,
+      code: dict.code,
+      description: dict.description,
+      status: dict.status,
+    });
+    setEditVisible(true);
+  };
+
+  // 提交编辑
+  const handleEdit = async () => {
+    if (!editingDict) return;
+    try {
+      const values = await editForm.validateFields();
+      await dictService.updateDict(editingDict.id, values);
+      message.success('更新成功');
+      setEditVisible(false);
+      setEditingDict(null);
+      loadDicts();
+    } catch (error: any) {
+      if (error?.errorFields) return; // 表单校验错误
+      message.error(error?.response?.data?.error || '更新失败');
+    }
+  };
+
   const columns = [
     {
       title: '字典名称',
@@ -116,7 +147,7 @@ const DictList: React.FC = () => {
           >
             字典项
           </Button>
-          <Button type="link" icon={<EditOutlined />}>
+          <Button type="link" icon={<EditOutlined />} onClick={() => openEditModal(record)}>
             编辑
           </Button>
           <Popconfirm
@@ -189,6 +220,42 @@ const DictList: React.FC = () => {
               <Input.TextArea placeholder="请输入描述" rows={3} />
             </Form.Item>
             <Form.Item name="status" label="状态" initialValue={1}>
+              <Select options={[{ label: '正常', value: 1 }, { label: '禁用', value: 0 }]} />
+            </Form.Item>
+          </Form>
+        </Modal>
+
+        <Modal
+          title="编辑字典"
+          open={editVisible}
+          onCancel={() => {
+            setEditVisible(false);
+            setEditingDict(null);
+          }}
+          onOk={handleEdit}
+          okText="更新"
+          cancelText="取消"
+          destroyOnClose
+        >
+          <Form form={editForm} layout="vertical">
+            <Form.Item
+              name="name"
+              label="字典名称"
+              rules={[{ required: true, message: '请输入字典名称' }]}
+            >
+              <Input placeholder="例如：用户状态" />
+            </Form.Item>
+            <Form.Item
+              name="code"
+              label="字典编码"
+              rules={[{ required: true, message: '请输入字典编码' }]}
+            >
+              <Input placeholder="例如：USER_STATUS" />
+            </Form.Item>
+            <Form.Item name="description" label="描述">
+              <Input.TextArea placeholder="请输入描述" rows={3} />
+            </Form.Item>
+            <Form.Item name="status" label="状态">
               <Select options={[{ label: '正常', value: 1 }, { label: '禁用', value: 0 }]} />
             </Form.Item>
           </Form>

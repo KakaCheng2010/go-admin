@@ -32,7 +32,7 @@ type UpdateDictRequest struct {
 }
 
 type CreateDictItemRequest struct {
-	DictID uint   `json:"dict_id" binding:"required"`
+	DictID string `json:"dict_id" binding:"required"`
 	Label  string `json:"label" binding:"required"`
 	Value  string `json:"value" binding:"required"`
 	Sort   int    `json:"sort"`
@@ -161,8 +161,24 @@ func (h *DictHandler) CreateDictItem(c *gin.Context) {
 		return
 	}
 
+	// 兼容两种来源：优先使用路径参数 /dicts/:id/items，其次使用 body.dict_id
+	idParam := c.Param("id")
+	var idSource string
+	if idParam != "" {
+		idSource = idParam
+	} else {
+		idSource = req.DictID
+	}
+
+	// 解析字典ID（字符串 -> uint）
+	dictID64, err := strconv.ParseUint(idSource, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "字典ID格式错误"})
+		return
+	}
+
 	item := &model.DictItem{
-		DictID: req.DictID,
+		DictID: uint(dictID64),
 		Label:  req.Label,
 		Value:  req.Value,
 		Sort:   req.Sort,
@@ -241,7 +257,8 @@ func (h *DictHandler) DeleteDictItem(c *gin.Context) {
 }
 
 func (h *DictHandler) ListDictItems(c *gin.Context) {
-	dictID, err := strconv.ParseUint(c.Param("dictId"), 10, 32)
+	// 路由为 /dicts/:id/items，这里应读取 id 参数
+	dictID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的字典ID"})
 		return

@@ -37,7 +37,6 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, rdb *redis.Client) *gin.Engine
 		auth := v1.Group("/auth")
 		{
 			auth.POST("/login", authHandler.Login)
-			auth.POST("/register", authHandler.Register)
 			auth.POST("/logout", authHandler.Logout)
 		}
 
@@ -108,6 +107,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, rdb *redis.Client) *gin.Engine
 			// 字典项管理（独立路由组避免冲突）
 			dictItems := authorized.Group("/dict-items")
 			{
+				dictItems.POST("", dictHandler.CreateDictItem)
 				dictItems.GET("/:id", dictHandler.GetDictItem)
 				dictItems.PUT("/:id", dictHandler.UpdateDictItem)
 				dictItems.DELETE("/:id", dictHandler.DeleteDictItem)

@@ -13,7 +13,7 @@ type Organization struct {
 	ParentID    *int64         `json:"parent_id,string"`
 	Path        string         `json:"path" gorm:"index"` // 路径，形如 1/2/3/4
 	Sort        int            `json:"sort" gorm:"default:0"`
-	Status      int            `json:"status" gorm:"default:1"` // 1:正常 0:禁用
+	Status      string         `json:"status" gorm:"default:'1'"` // 1:正常 0:禁用
 	Description string         `json:"description"`
 	CreatedBy   int64          `json:"created_by,string" gorm:"index"`
 	UpdatedBy   int64          `json:"updated_by,string" gorm:"index"`

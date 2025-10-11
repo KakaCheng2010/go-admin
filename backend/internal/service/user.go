@@ -67,7 +67,7 @@ func (s *UserService) SoftDeleteUser(id int64, operatorID int64) error {
 type UserFilters struct {
 	Username string
 	Phone    string
-	Status   *int
+	Status   *string
 }
 
 func (s *UserService) ListUsers(page, pageSize int, filters *UserFilters) ([]model.User, int64, error) {
