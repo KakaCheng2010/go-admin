@@ -18,27 +18,33 @@ func NewMenuHandler(menuService *service.MenuService) *MenuHandler {
 }
 
 type CreateMenuRequest struct {
-	Name      string  `json:"name" binding:"required"`
-	Code      string  `json:"code" binding:"required"`
-	ParentID  *string `json:"parent_id"`
-	Path      string  `json:"path"` // 将由服务层自动计算，前端可不传
-	Component string  `json:"component"`
-	Icon      string  `json:"icon"`
-	Type      int     `json:"type"`
-	Sort      int     `json:"sort"`
-	Status    string  `json:"status"`
+	Name       string  `json:"name" binding:"required"`
+	ParentID   *string `json:"parent_id"`
+	Path       string  `json:"path"` // 将由服务层自动计算，前端可不传
+	Component  string  `json:"component"`
+	Icon       string  `json:"icon"`
+	Type       int     `json:"type"`
+	Sort       int     `json:"sort"`
+	Status     string  `json:"status"`
+	Permission string  `json:"permission"` // 权限标识
+	Route      string  `json:"route"`      // 前端路由路径
+	Hidden     bool    `json:"hidden"`     // 是否在菜单中隐藏
+	KeepAlive  bool    `json:"keep_alive"` // 是否缓存页面
 }
 
 type UpdateMenuRequest struct {
-	Name      string  `json:"name"`
-	Code      string  `json:"code"`
-	ParentID  *string `json:"parent_id"`
-	Path      string  `json:"path"` // 将由服务层重新计算
-	Component string  `json:"component"`
-	Icon      string  `json:"icon"`
-	Type      int     `json:"type"`
-	Sort      int     `json:"sort"`
-	Status    string  `json:"status"`
+	Name       string  `json:"name"`
+	ParentID   *string `json:"parent_id"`
+	Path       string  `json:"path"` // 将由服务层重新计算
+	Component  string  `json:"component"`
+	Icon       string  `json:"icon"`
+	Type       int     `json:"type"`
+	Sort       int     `json:"sort"`
+	Status     string  `json:"status"`
+	Permission string  `json:"permission"` // 权限标识
+	Route      string  `json:"route"`      // 前端路由路径
+	Hidden     bool    `json:"hidden"`     // 是否在菜单中隐藏
+	KeepAlive  bool    `json:"keep_alive"` // 是否缓存页面
 }
 
 func (h *MenuHandler) CreateMenu(c *gin.Context) {
@@ -59,15 +65,18 @@ func (h *MenuHandler) CreateMenu(c *gin.Context) {
 	}
 
 	menu := &model.Menu{
-		Name:      req.Name,
-		Code:      req.Code,
-		ParentID:  parentID,
-		Path:      req.Path,
-		Component: req.Component,
-		Icon:      req.Icon,
-		Type:      req.Type,
-		Sort:      req.Sort,
-		Status:    req.Status,
+		Name:       req.Name,
+		ParentID:   parentID,
+		Path:       req.Path,
+		Component:  req.Component,
+		Icon:       req.Icon,
+		Type:       req.Type,
+		Sort:       req.Sort,
+		Status:     req.Status,
+		Permission: req.Permission,
+		Route:      req.Route,
+		Hidden:     req.Hidden,
+		KeepAlive:  req.KeepAlive,
 	}
 
 	if err := h.menuService.CreateMenu(menu); err != nil {
@@ -114,7 +123,6 @@ func (h *MenuHandler) UpdateMenu(c *gin.Context) {
 	}
 
 	menu.Name = req.Name
-	menu.Code = req.Code
 	if req.ParentID != nil {
 		if *req.ParentID == "" {
 			menu.ParentID = nil
@@ -133,6 +141,10 @@ func (h *MenuHandler) UpdateMenu(c *gin.Context) {
 	menu.Type = req.Type
 	menu.Sort = req.Sort
 	menu.Status = req.Status
+	menu.Permission = req.Permission
+	menu.Route = req.Route
+	menu.Hidden = req.Hidden
+	menu.KeepAlive = req.KeepAlive
 
 	if err := h.menuService.UpdateMenu(menu); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "更新失败"})

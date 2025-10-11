@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Table, Button, Space, Tag, message, Modal, Form, Input, InputNumber, Select, TreeSelect } from 'antd';
+import { Card, Table, Button, Space, Tag, message, Modal, Form, Input, InputNumber, Select, TreeSelect, Radio, Row, Col } from 'antd';
 import {
   PlusOutlined,
   EditOutlined,
@@ -8,20 +8,25 @@ import {
 } from '@ant-design/icons';
 import { menuService, Menu, CreateMenuRequest, UpdateMenuRequest } from '../../services/menu';
 import { useDict } from '../../hooks/useDict';
+import IconSelector from '../../components/IconSelector';
+import IconDisplay from '../../components/IconDisplay';
 
 const MenuManagement: React.FC = () => {
   const [menus, setMenus] = useState<Menu[]>([]);
+  const [menuList, setMenuList] = useState<Menu[]>([]); // 平铺的菜单列表，用于TreeSelect
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingMenu, setEditingMenu] = useState<Menu | null>(null);
   const [form] = Form.useForm();
+  const [menuType, setMenuType] = useState<number>(1); // 菜单类型状态
   const { dictOptions: statusOptions, loading: statusLoading } = useDict('status');
 
   const loadMenus = async () => {
     setLoading(true);
     try {
       const data = await menuService.getMenus();
-      setMenus(convertListToTree(data));
+      setMenuList(data); // 保存平铺数据
+      setMenus(convertListToTree(data)); // 保存树形数据用于表格显示
     } catch (error) {
       message.error('加载菜单列表失败');
     } finally {
@@ -35,12 +40,14 @@ const MenuManagement: React.FC = () => {
 
   const handleCreate = () => {
     setEditingMenu(null);
+    setMenuType(1); // 默认选择菜单类型
     setModalVisible(true);
     form.resetFields();
   };
 
   const handleEdit = (menu: Menu) => {
     setEditingMenu(menu);
+    setMenuType(menu.type); // 设置当前菜单的类型
     setModalVisible(true);
     form.setFieldsValue(menu);
   };
@@ -73,26 +80,50 @@ const MenuManagement: React.FC = () => {
 
   // 将菜单转为 TreeSelect 所需结构
   const menusToTreeSelect = (list: Menu[]): any[] => {
-    console.log('menusToTreeSelect', list);
+    console.log('menusToTreeSelect input:', list);
+
+    // 如果是编辑模式，过滤掉当前菜单及其子菜单，避免循环引用
+    const filteredList = editingMenu
+      ? list.filter(menu => {
+        // 过滤掉当前编辑的菜单
+        if (menu.id === editingMenu.id) return false;
+        // 过滤掉当前菜单的所有子菜单
+        const isChild = (menuId: string, parentId: string): boolean => {
+          if (menuId === parentId) return true;
+          const menu = list.find(m => m.id === menuId);
+          if (!menu || !menu.parent_id) return false;
+          return isChild(menu.parent_id, parentId);
+        };
+        return !isChild(menu.id, editingMenu.id);
+      })
+      : list;
+
+    console.log('filteredList:', filteredList);
+
     const map = new Map<string, any>();
     const roots: any[] = [];
-    list.forEach((m) => {
+
+    // 创建所有节点
+    filteredList.forEach((m) => {
       map.set(m.id, {
-        id: m.id,
-        name: m.name,
+        value: m.id,
+        title: m.name,
         children: [],
       });
     });
-    list.forEach((m) => {
+
+    // 构建树形结构
+    filteredList.forEach((m) => {
       const node = map.get(m.id);
-      if (m.parent_id) {
+      if (m.parent_id && map.has(m.parent_id)) {
         const parent = map.get(m.parent_id);
-        if (parent) parent.children.push(node);
-        else roots.push(node);
+        parent.children.push(node);
       } else {
         roots.push(node);
       }
     });
+
+    console.log('TreeSelect result:', roots);
     return roots;
   };
 
@@ -141,11 +172,6 @@ const MenuManagement: React.FC = () => {
       key: 'name',
     },
     {
-      title: '菜单编码',
-      dataIndex: 'code',
-      key: 'code',
-    },
-    {
       title: '组件',
       dataIndex: 'component',
       key: 'component',
@@ -154,6 +180,9 @@ const MenuManagement: React.FC = () => {
       title: '图标',
       dataIndex: 'icon',
       key: 'icon',
+      render: (icon: string) => {
+        return <IconDisplay iconName={icon} showName={true} size={16} />;
+      },
     },
     {
       title: '类型',
@@ -161,7 +190,7 @@ const MenuManagement: React.FC = () => {
       key: 'type',
       render: (type: number) => (
         <Tag color={type === 1 ? 'blue' : 'green'}>
-          {type === 1 ? '菜单' : '按钮'}
+          {type === 1 ? '菜单' : '组件'}
         </Tag>
       ),
     },
@@ -172,6 +201,40 @@ const MenuManagement: React.FC = () => {
       width: 80,
       sorter: (a: Menu, b: Menu) => a.sort - b.sort,
       defaultSortOrder: 'ascend' as const,
+    },
+    {
+      title: '权限标识',
+      dataIndex: 'permission',
+      key: 'permission',
+      width: 120,
+    },
+    {
+      title: '前端路由',
+      dataIndex: 'route',
+      key: 'route',
+      width: 120,
+    },
+    {
+      title: '隐藏',
+      dataIndex: 'hidden',
+      key: 'hidden',
+      width: 80,
+      render: (hidden: boolean) => (
+        <Tag color={hidden ? 'red' : 'green'}>
+          {hidden ? '是' : '否'}
+        </Tag>
+      ),
+    },
+    {
+      title: '缓存',
+      dataIndex: 'keep_alive',
+      key: 'keep_alive',
+      width: 80,
+      render: (keepAlive: boolean) => (
+        <Tag color={keepAlive ? 'blue' : 'default'}>
+          {keepAlive ? '是' : '否'}
+        </Tag>
+      ),
     },
     {
       title: '状态',
@@ -244,89 +307,163 @@ const MenuManagement: React.FC = () => {
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={null}
-        width={600}
+        width={800}
       >
         <Form
           form={form}
           layout="vertical"
           onFinish={handleSubmit}
         >
-          <Form.Item
-            name="name"
-            label="菜单名称"
-            rules={[{ required: true, message: '请输入菜单名称' }]}
-          >
-            <Input />
-          </Form.Item>
+          <Row gutter={[16, 16]}>
+            <Col xs={24} sm={8} md={8} lg={8} xl={8}>
+              <Form.Item name="parent_id" label="上级菜单">
+                <TreeSelect
+                  allowClear
+                  showSearch
+                  treeDefaultExpandAll
+                  placeholder="请选择上级菜单（不选则为根菜单）"
+                  treeData={menusToTreeSelect(menuList)}
+                  fieldNames={{ value: 'value', label: 'title', children: 'children' }}
+                  style={{ width: '100%' }}
+                />
+              </Form.Item>
+            </Col>
 
-          <Form.Item
-            name="code"
-            label="菜单编码"
-            rules={[{ required: true, message: '请输入菜单编码' }]}
-          >
-            <Input />
-          </Form.Item>
+            {/* 类型 */}
+            <Col xs={24} sm={8} md={8} lg={8} xl={8}>
+              <Form.Item
+                name="type"
+                label="类型"
+                initialValue={1}
+              >
+                <Radio.Group onChange={(e) => setMenuType(e.target.value)}>
+                  <Radio value={1}>菜单</Radio>
+                  <Radio value={2}>组件</Radio>
+                </Radio.Group>
+              </Form.Item>
+            </Col>
 
-          <Form.Item name="parent_id" label="上级菜单">
-            <TreeSelect
-              allowClear
-              showSearch
-              treeDefaultExpandAll
-              placeholder="请选择上级菜单（不选则为根菜单）"
-              treeData={menusToTreeSelect(menus)}
-              fieldNames={{ value: 'id', label: 'name', children: 'children' }}
-              style={{ width: '100%' }}
-            />
-          </Form.Item>
+            {/* 排序 */}
+            <Col xs={24} sm={8} md={8} lg={8} xl={8}>
+              <Form.Item
+                name="sort"
+                label="排序"
+                initialValue={0}
+              >
+                <InputNumber min={0} style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
 
-          <Form.Item
-            name="component"
-            label="组件"
-          >
-            <Input />
-          </Form.Item>
+            {/* 名称字段 - 根据类型显示不同标签 */}
+            <Col xs={24} sm={8} md={8} lg={8} xl={8}>
+              <Form.Item
+                name="name"
+                label={menuType === 1 ? "菜单名称" : "组件名称"}
+                rules={[{ required: true, message: menuType === 1 ? '请输入菜单名称' : '请输入组件名称' }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
 
-          <Form.Item
-            name="icon"
-            label="图标"
-          >
-            <Input />
-          </Form.Item>
 
-          <Form.Item
-            name="type"
-            label="类型"
-            initialValue={1}
-          >
-            <Select>
-              <Select.Option value={1}>菜单</Select.Option>
-              <Select.Option value={2}>按钮</Select.Option>
-            </Select>
-          </Form.Item>
+            {/* 图标 - 只有菜单类型才显示 */}
+            {menuType === 1 && (
+              <Col xs={24} sm={8} md={8} lg={8} xl={8}>
+                <Form.Item
+                  name="icon"
+                  label="菜单图标"
+                >
+                  <IconSelector />
+                </Form.Item>
+              </Col>
+            )}
 
-          <Form.Item
-            name="sort"
-            label="排序"
-            initialValue={0}
-          >
-            <InputNumber min={0} />
-          </Form.Item>
 
-          <Form.Item
-            name="status"
-            label="状态"
-            initialValue="1"
-          >
-            <Select loading={statusLoading}>
-              {statusOptions.map(option => (
-                <Select.Option key={option.value} value={option.value}>
-                  {option.label}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
 
-          <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
+            {/* 前端路由 - 只有菜单类型才显示 */}
+            {menuType === 1 && (
+              <Col xs={24} sm={8} md={8} lg={8} xl={8}>
+                <Form.Item
+                  name="route"
+                  label="前端路由"
+                >
+                  <Input placeholder="如：/user/list, /user/detail" />
+                </Form.Item>
+              </Col>
+            )}
+
+            {/* 组件路径 - 只有菜单类型才显示 */}
+            {menuType === 1 && (
+              <Col xs={24} sm={8} md={8} lg={8} xl={8}>
+                <Form.Item
+                  name="component"
+                  label="组件路径"
+                >
+                  <Input placeholder="如：itsm/cmdb/resource/index" />
+                </Form.Item>
+              </Col>
+            )}
+
+            {/* 权限标识 */}
+            <Col xs={24} sm={8} md={8} lg={8} xl={8}>
+              <Form.Item
+                name="permission"
+                label="权限标识"
+              >
+                <Input placeholder="如：user:list, user:create" />
+              </Form.Item>
+            </Col>
+
+
+
+
+            {/* 状态 */}
+            <Col xs={24} sm={8} md={8} lg={8} xl={8}>
+              <Form.Item
+                name="status"
+                label="状态"
+                initialValue="1"
+              >
+                <Select loading={statusLoading} style={{ width: '100%' }}>
+                  {statusOptions.map(option => (
+                    <Select.Option key={option.value} value={option.value}>
+                      {option.label}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+
+
+
+            {/* 是否隐藏 - 只有菜单类型才显示 */}
+            {menuType === 1 && (
+              <Col xs={24} sm={8} md={8} lg={8} xl={8}>
+                <Form.Item
+                  name="hidden"
+                  label="是否隐藏"
+                  valuePropName="checked"
+                >
+                  <input type="checkbox" />
+                </Form.Item>
+              </Col>
+            )}
+
+            {/* 是否缓存 - 只有菜单类型才显示 */}
+            {menuType === 1 && (
+              <Col xs={24} sm={8} md={8} lg={8} xl={8}>
+                <Form.Item
+                  name="keep_alive"
+                  label="是否缓存"
+                  valuePropName="checked"
+                >
+                  <input type="checkbox" />
+                </Form.Item>
+              </Col>
+            )}
+          </Row>
+
+          <Form.Item style={{ marginBottom: 0, textAlign: 'right', marginTop: '16px' }}>
             <Space>
               <Button onClick={() => setModalVisible(false)}>
                 取消

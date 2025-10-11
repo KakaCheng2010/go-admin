@@ -3,7 +3,6 @@ import api from './api';
 export interface Menu {
   id: string;
   name: string;
-  code: string;
   parent_id?: string;
   path: string;
   component: string;
@@ -11,6 +10,10 @@ export interface Menu {
   type: number;
   sort: number;
   status: string;
+  permission: string; // 权限标识
+  route: string;      // 前端路由路径
+  hidden: boolean;    // 是否在菜单中隐藏
+  keep_alive: boolean; // 是否缓存页面
   created_at: string;
   updated_at: string;
   parent?: Menu;
@@ -19,7 +22,6 @@ export interface Menu {
 
 export interface CreateMenuRequest {
   name: string;
-  code: string;
   parent_id?: string;
   path?: string;
   component?: string;
@@ -27,11 +29,14 @@ export interface CreateMenuRequest {
   type?: number;
   sort?: number;
   status?: string;
+  permission?: string; // 权限标识
+  route?: string;      // 前端路由路径
+  hidden?: boolean;    // 是否在菜单中隐藏
+  keep_alive?: boolean; // 是否缓存页面
 }
 
 export interface UpdateMenuRequest {
   name?: string;
-  code?: string;
   parent_id?: string;
   path?: string;
   component?: string;
@@ -39,6 +44,10 @@ export interface UpdateMenuRequest {
   type?: number;
   sort?: number;
   status?: string;
+  permission?: string; // 权限标识
+  route?: string;      // 前端路由路径
+  hidden?: boolean;    // 是否在菜单中隐藏
+  keep_alive?: boolean; // 是否缓存页面
 }
 
 export const menuService = {
