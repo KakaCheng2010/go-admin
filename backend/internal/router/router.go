@@ -57,7 +57,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, rdb *redis.Client) *gin.Engine
 			users := authorized.Group("/users")
 			{
 				users.POST("", userHandler.CreateUser)
-				users.GET("", userHandler.ListUsers)
+				users.GET("", middleware.AuthMiddleware(rdb, []string{"user:list"}), userHandler.ListUsers)
 				users.GET("/:id", userHandler.GetUser)
 				users.PUT("/:id", userHandler.UpdateUser)
 				users.DELETE("/:id", userHandler.DeleteUser)
@@ -93,7 +93,6 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, rdb *redis.Client) *gin.Engine
 			{
 				menus.POST("", menuHandler.CreateMenu)
 				menus.GET("", menuHandler.ListMenus)
-				menus.GET("/tree", menuHandler.GetMenuTree)
 				// 已废弃：用户菜单改由登录响应返回
 				menus.GET("/:id", menuHandler.GetMenu)
 				menus.PUT("/:id", menuHandler.UpdateMenu)

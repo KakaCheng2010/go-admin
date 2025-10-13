@@ -50,8 +50,9 @@ const RoleManagement: React.FC = () => {
   // 加载菜单树数据
   const loadMenuTree = async () => {
     try {
-      const data = await menuService.getMenuTree();
-      setMenuTreeData(data);
+      // 1) 后台返回平铺列表；2) 前台转换为树
+      const list = await menuService.getMenus();
+      setMenuTreeData(convertListToTree(list));
     } catch (error) {
       message.error('加载菜单树失败');
     }
@@ -63,6 +64,45 @@ const RoleManagement: React.FC = () => {
     setEditingRole(null);
     setModalVisible(true);
     form.resetFields();
+  };
+
+  // 将平铺菜单列表转换为树（用于 Tree 展示）
+  const convertListToTree = (list: Menu[]): Menu[] => {
+    const idToNodeMap = new Map<string, Menu & { children?: Menu[] }>();
+    const roots: (Menu & { children?: Menu[] })[] = [];
+
+    list.forEach((menuItem) => {
+      idToNodeMap.set(menuItem.id, { ...menuItem, children: [] });
+    });
+
+    list.forEach((menuItem) => {
+      const currentNode = idToNodeMap.get(menuItem.id)!;
+      if (menuItem.parent_id) {
+        const parentNode = idToNodeMap.get(menuItem.parent_id);
+        if (parentNode) {
+          parentNode.children!.push(currentNode);
+        } else {
+          // 无法找到父级时视为根
+          roots.push(currentNode);
+        }
+      } else {
+        roots.push(currentNode);
+      }
+    });
+
+    // 清理空 children，避免渲染多余的展开图标
+    const pruneEmptyChildren = (nodes: (Menu & { children?: Menu[] })[]): Menu[] =>
+      nodes.map((node) => {
+        const cloned: any = { ...node };
+        if (cloned.children && cloned.children.length > 0) {
+          cloned.children = pruneEmptyChildren(cloned.children);
+        } else {
+          delete cloned.children;
+        }
+        return cloned as Menu;
+      });
+
+    return pruneEmptyChildren(roots);
   };
 
   const handleEdit = (role: Role) => {

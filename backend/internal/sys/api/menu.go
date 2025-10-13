@@ -179,15 +179,7 @@ func (h *MenuHandler) ListMenus(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"menus": menus})
 }
 
-func (h *MenuHandler) GetMenuTree(c *gin.Context) {
-	menus, err := h.menuService.GetMenuTree()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "获取菜单树失败"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"menus": menus})
-}
+// 已删除：菜单树接口由前端自行根据列表组装
 
 // GetUserMenus 获取当前用户的菜单
 // 已废弃：用户菜单改由登录响应返回

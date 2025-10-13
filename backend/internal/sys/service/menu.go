@@ -89,11 +89,7 @@ func (s *MenuService) ListMenus() ([]model.Menu, error) {
 	return menus, err
 }
 
-func (s *MenuService) GetMenuTree() ([]model.Menu, error) {
-	var menus []model.Menu
-	err := s.db.Where("parent_id IS NULL").Preload("Children").Order("sort ASC, id ASC").Find(&menus).Error
-	return menus, err
-}
+// 已删除：菜单树在前端由平铺列表转换
 
 // GetUserMenus 根据用户ID获取用户有权限的菜单（去重）
 func (s *MenuService) GetUserMenus(userID int64) ([]model.Menu, error) {
