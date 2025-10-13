@@ -47,3 +47,26 @@ func ValidateJWT(tokenString string) (*Claims, error) {
 
 	return claims, nil
 }
+
+// 计算给定 token 剩余有效期，用于对齐 Redis TTL
+func RemainingTTL(tokenString string) (time.Duration, error) {
+	cfg := config.GetConfig()
+	claims := &Claims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(cfg.JWT.Secret), nil
+	})
+	if err != nil {
+		return 0, err
+	}
+	if !token.Valid {
+		return 0, errors.New("token invalid")
+	}
+	if claims.ExpiresAt == nil {
+		return 0, errors.New("token has no exp")
+	}
+	ttl := time.Until(claims.ExpiresAt.Time)
+	if ttl < 0 {
+		return 0, errors.New("token expired")
+	}
+	return ttl, nil
+}

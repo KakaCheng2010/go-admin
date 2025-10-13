@@ -1,20 +1,24 @@
 package api
 
 import (
+	"fmt"
 	"go-admin/internal/config"
 	"go-admin/internal/service"
 	"go-admin/internal/utils"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 )
 
 type AuthHandler struct {
 	authService *service.AuthService
+	rdb         *redis.Client
 }
 
-func NewAuthHandler(authService *service.AuthService) *AuthHandler {
-	return &AuthHandler{authService: authService}
+func NewAuthHandler(authService *service.AuthService, rdb *redis.Client) *AuthHandler {
+	return &AuthHandler{authService: authService, rdb: rdb}
 }
 
 type LoginRequest struct {
@@ -43,6 +47,19 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
+	// 将 token 写入 Redis 白名单，TTL 与 token 剩余有效期对齐
+	if h.rdb != nil {
+		if ttl, err := utils.RemainingTTL(token); err == nil {
+			key := "jwt:whitelist:" + token
+			if err := h.rdb.Set(c.Request.Context(), key, "1", ttl).Err(); err != nil {
+				// 仅记录，不阻断登录
+				fmt.Printf("登录白名单写入失败: %v\n", err)
+			}
+		} else {
+			fmt.Printf("计算 token TTL 失败: %v\n", err)
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"token": token,
 		"user": gin.H{
@@ -56,6 +73,18 @@ func (h *AuthHandler) Login(c *gin.Context) {
 }
 
 func (h *AuthHandler) Logout(c *gin.Context) {
-	// 这里可以实现令牌黑名单逻辑
+	// 从 Authorization 头提取 token 并从白名单移除
+	authHeader := c.GetHeader("Authorization")
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	if tokenString == "" || tokenString == authHeader {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "未提供有效令牌"})
+		return
+	}
+	if h.rdb != nil {
+		key := "jwt:whitelist:" + tokenString
+		if err := h.rdb.Del(c.Request.Context(), key).Err(); err != nil {
+			fmt.Printf("退出白名单删除失败: %v\n", err)
+		}
+	}
 	c.JSON(http.StatusOK, gin.H{"message": "退出成功"})
 }

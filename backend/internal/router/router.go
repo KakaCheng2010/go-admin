@@ -28,7 +28,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, rdb *redis.Client) *gin.Engine
 	dictService := sysservice.NewDictService(db)
 
 	// 初始化处理器
-	authHandler := api.NewAuthHandler(authService)
+	authHandler := api.NewAuthHandler(authService, rdb)
 	userHandler := sysapi.NewUserHandler(userService)
 	orgHandler := sysapi.NewOrganizationHandler(orgService)
 	roleHandler := sysapi.NewRoleHandler(roleService)
@@ -46,9 +46,9 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, rdb *redis.Client) *gin.Engine
 			auth.POST("/logout", authHandler.Logout)
 		}
 
-		// 需要认证的路由
+		// 需要认证的路由（使用 Redis 白名单认证）
 		authorized := v1.Group("/")
-		authorized.Use(middleware.AuthMiddleware())
+		authorized.Use(middleware.AuthWhitelistMiddleware(rdb))
 		{
 			// 用户管理
 			users := authorized.Group("/users")
