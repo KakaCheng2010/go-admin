@@ -5,6 +5,8 @@ import (
 	"go-admin/internal/config"
 	"go-admin/internal/middleware"
 	"go-admin/internal/service"
+	sysapi "go-admin/internal/sys/api"
+	sysservice "go-admin/internal/sys/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
@@ -16,19 +18,19 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, rdb *redis.Client) *gin.Engine
 
 	// 初始化服务
 	authService := service.NewAuthService(db)
-	userService := service.NewUserService(db)
-	orgService := service.NewOrganizationService(db)
-	roleService := service.NewRoleService(db)
-	menuService := service.NewMenuService(db)
-	dictService := service.NewDictService(db)
+	userService := sysservice.NewUserService(db)
+	orgService := sysservice.NewOrganizationService(db)
+	roleService := sysservice.NewRoleService(db)
+	menuService := sysservice.NewMenuService(db)
+	dictService := sysservice.NewDictService(db)
 
 	// 初始化处理器
 	authHandler := api.NewAuthHandler(authService)
-	userHandler := api.NewUserHandler(userService)
-	orgHandler := api.NewOrganizationHandler(orgService)
-	roleHandler := api.NewRoleHandler(roleService)
-	menuHandler := api.NewMenuHandler(menuService)
-	dictHandler := api.NewDictHandler(dictService)
+	userHandler := sysapi.NewUserHandler(userService)
+	orgHandler := sysapi.NewOrganizationHandler(orgService)
+	roleHandler := sysapi.NewRoleHandler(roleService)
+	menuHandler := sysapi.NewMenuHandler(menuService)
+	dictHandler := sysapi.NewDictHandler(dictService)
 
 	// API路由组
 	v1 := r.Group("/api/v1")

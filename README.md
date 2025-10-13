@@ -23,13 +23,22 @@
 
 ## 功能模块
 
-- ✅ 用户管理
-- ✅ 组织管理
-- ✅ 角色管理
-- ✅ 菜单管理
-- ✅ 字典管理
-- ✅ 权限控制
-- ✅ 日志审计
+### 系统管理模块 (sys/)
+- ✅ 用户管理 - 用户CRUD、状态管理、角色分配
+- ✅ 组织管理 - 树形组织结构、层级管理
+- ✅ 角色管理 - 角色定义、权限分配
+- ✅ 菜单管理 - 动态菜单、权限控制
+- ✅ 字典管理 - 系统字典、数据字典项
+
+### 认证模块 (auth/)
+- ✅ 用户认证 - JWT令牌认证
+- ✅ 权限控制 - 基于角色的访问控制
+- ✅ 会话管理 - Redis会话存储
+
+### 扩展模块
+- 🔄 业务模块 - 可扩展的业务功能模块
+- 🔄 报表模块 - 数据统计和报表
+- 🔄 日志模块 - 操作日志和审计
 
 ## 项目结构
 
@@ -37,26 +46,107 @@
 go-admin/
 ├── backend/                 # Go后端
 │   ├── cmd/                # 应用入口
+│   │   └── main.go
 │   ├── internal/           # 内部包
-│   │   ├── api/           # API处理器
-│   │   ├── config/        # 配置
+│   │   ├── api/           # 认证API
+│   │   │   └── auth.go
+│   │   ├── config/        # 配置管理
+│   │   │   └── config.go
+│   │   ├── database/      # 数据库连接
+│   │   │   └── database.go
 │   │   ├── middleware/    # 中间件
-│   │   ├── model/         # 数据模型
-│   │   ├── service/       # 业务逻辑
+│   │   │   ├── auth.go
+│   │   │   ├── cache.go
+│   │   │   ├── cors.go
+│   │   │   └── middleware.go
+│   │   ├── router/         # 路由配置
+│   │   │   └── router.go
+│   │   ├── service/        # 认证服务
+│   │   │   └── auth.go
+│   │   ├── sys/           # 系统管理模块
+│   │   │   ├── api/       # 系统管理API
+│   │   │   │   ├── dict.go
+│   │   │   │   ├── menu.go
+│   │   │   │   ├── organization.go
+│   │   │   │   ├── role.go
+│   │   │   │   └── user.go
+│   │   │   ├── model/     # 系统管理数据模型
+│   │   │   │   ├── dict.go
+│   │   │   │   ├── menu.go
+│   │   │   │   ├── organization.go
+│   │   │   │   ├── role.go
+│   │   │   │   └── user.go
+│   │   │   └── service/    # 系统管理业务逻辑
+│   │   │       ├── dict.go
+│   │   │       ├── menu.go
+│   │   │       ├── organization.go
+│   │   │       ├── role.go
+│   │   │       └── user.go
 │   │   └── utils/         # 工具函数
-│   ├── pkg/               # 公共包
-│   ├── migrations/        # 数据库迁移
-│   └── go.mod
+│   │       ├── jwt.go
+│   │       ├── password.go
+│   │       └── snowflake.go
+│   ├── scripts/           # 脚本文件
+│   ├── uploads/           # 上传文件目录
+│   ├── config.yaml        # 配置文件
+│   ├── Dockerfile         # Docker配置
+│   ├── go.mod
+│   └── go.sum
 ├── frontend/              # React前端
 │   ├── src/
 │   │   ├── components/    # 组件
 │   │   ├── pages/         # 页面
 │   │   ├── services/      # API服务
 │   │   ├── store/         # 状态管理
+│   │   ├── router/        # 路由配置
 │   │   └── utils/         # 工具函数
 │   └── package.json
+├── config.yaml            # 项目配置文件
 ├── docker-compose.yml     # Docker配置
 └── README.md
+```
+
+## 架构设计
+
+### 模块化架构
+项目采用模块化设计，每个功能模块都有独立的目录结构：
+
+```
+internal/
+├── api/           # 认证相关API
+├── service/        # 认证相关服务
+├── sys/           # 系统管理模块
+│   ├── api/       # 系统管理API
+│   ├── model/     # 系统管理数据模型
+│   └── service/   # 系统管理业务逻辑
+├── middleware/    # 中间件
+├── router/        # 路由配置
+└── utils/         # 工具函数
+```
+
+### 设计原则
+- **单一职责**: 每个模块负责特定的功能领域
+- **低耦合**: 模块间通过接口交互，减少直接依赖
+- **高内聚**: 相关功能集中在同一模块内
+- **可扩展**: 新模块可以独立开发和部署
+
+### 模块扩展
+添加新模块时，只需在 `internal/` 下创建新的目录：
+
+```
+internal/
+├── business/      # 业务模块
+│   ├── api/
+│   ├── model/
+│   └── service/
+├── finance/       # 财务模块
+│   ├── api/
+│   ├── model/
+│   └── service/
+└── report/        # 报表模块
+    ├── api/
+    ├── model/
+    └── service/
 ```
 
 ## 快速开始

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"go-admin/internal/model"
+	"go-admin/internal/sys/model"
 
 	"gorm.io/gorm"
 )

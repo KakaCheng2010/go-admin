@@ -3,7 +3,7 @@ package database
 import (
 	"fmt"
 	"go-admin/internal/config"
-	"go-admin/internal/model"
+	"go-admin/internal/sys/model"
 
 	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/postgres"

@@ -1,8 +1,8 @@
 package api
 
 import (
-	"go-admin/internal/model"
-	"go-admin/internal/service"
+	"go-admin/internal/sys/model"
+	"go-admin/internal/sys/service"
 	"net/http"
 	"strconv"
 

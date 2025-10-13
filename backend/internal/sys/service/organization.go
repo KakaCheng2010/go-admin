@@ -2,7 +2,7 @@ package service
 
 import (
 	"fmt"
-	"go-admin/internal/model"
+	"go-admin/internal/sys/model"
 
 	"gorm.io/gorm"
 )

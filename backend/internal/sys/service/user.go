@@ -2,7 +2,7 @@ package service
 
 import (
 	"errors"
-	"go-admin/internal/model"
+	"go-admin/internal/sys/model"
 	"go-admin/internal/utils"
 
 	"gorm.io/gorm"

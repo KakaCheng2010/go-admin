@@ -2,8 +2,8 @@ package api
 
 import (
 	"fmt"
-	"go-admin/internal/model"
-	"go-admin/internal/service"
+	"go-admin/internal/sys/model"
+	"go-admin/internal/sys/service"
 	"go-admin/internal/utils"
 	"net/http"
 	"strconv"
