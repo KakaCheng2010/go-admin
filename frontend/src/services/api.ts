@@ -28,6 +28,12 @@ api.interceptors.request.use(
 // 响应拦截器
 api.interceptors.response.use(
   (response) => {
+    // 读取后台下发的新 token 并更新本地存储
+    const refreshed = response.headers['x-refresh-token'];
+    if (refreshed && typeof refreshed === 'string' && refreshed.length > 0) {
+      const { setToken } = useAuthStore.getState();
+      setToken(refreshed);
+    }
     return response;
   },
   (error) => {

@@ -4,10 +4,12 @@ import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useAuthStore } from '../store/authStore';
 import { useDictStore } from '../store/dictStore';
 import { authService, LoginRequest } from '../services/auth';
+import { useMenuStore } from '../store/menuStore';
 
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useAuthStore();
+  const { setMenus } = useMenuStore();
   const { loadAllDicts } = useDictStore();
 
   const onLogin = async (values: LoginRequest) => {
@@ -15,6 +17,9 @@ const Login: React.FC = () => {
     try {
       const response = await authService.login(values);
       login(response.token, response.user);
+      if (response.menus && Array.isArray(response.menus)) {
+        setMenus(response.menus as any);
+      }
       
       // 登录成功后加载字典数据
       try {

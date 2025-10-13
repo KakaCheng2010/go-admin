@@ -14,6 +14,7 @@ export interface LoginResponse {
     real_name: string;
     avatar: string;
   };
+  menus?: import('./menu').Menu[]; // 后端在登录时返回的用户菜单列表（可选）
 }
 
 

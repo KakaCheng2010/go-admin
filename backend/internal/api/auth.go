@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go-admin/internal/config"
 	"go-admin/internal/service"
+	sysservice "go-admin/internal/sys/service"
 	"go-admin/internal/utils"
 	"net/http"
 	"strings"
@@ -14,11 +15,12 @@ import (
 
 type AuthHandler struct {
 	authService *service.AuthService
+	menuService *sysservice.MenuService
 	rdb         *redis.Client
 }
 
-func NewAuthHandler(authService *service.AuthService, rdb *redis.Client) *AuthHandler {
-	return &AuthHandler{authService: authService, rdb: rdb}
+func NewAuthHandler(authService *service.AuthService, menuService *sysservice.MenuService, rdb *redis.Client) *AuthHandler {
+	return &AuthHandler{authService: authService, menuService: menuService, rdb: rdb}
 }
 
 type LoginRequest struct {
@@ -60,7 +62,18 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	// 查询用户可见菜单并随登录一起返回
+	var menus interface{}
+	if h.menuService != nil {
+		if ms, mErr := h.menuService.GetUserMenus(user.ID); mErr == nil {
+			menus = ms
+		} else {
+			// 查询失败不阻断登录，仅不返回菜单
+			fmt.Printf("获取用户菜单失败: %v\n", mErr)
+		}
+	}
+
+	resp := gin.H{
 		"token": token,
 		"user": gin.H{
 			"id":        user.ID,
@@ -69,7 +82,11 @@ func (h *AuthHandler) Login(c *gin.Context) {
 			"real_name": user.RealName,
 			"avatar":    user.Avatar,
 		},
-	})
+	}
+	if menus != nil {
+		resp["menus"] = menus
+	}
+	c.JSON(http.StatusOK, resp)
 }
 
 func (h *AuthHandler) Logout(c *gin.Context) {

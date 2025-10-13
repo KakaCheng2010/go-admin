@@ -11,6 +11,8 @@ import (
 type Claims struct {
 	UserID   int64  `json:"user_id"`
 	Username string `json:"username"`
+	// 可选：在JWT中内嵌简化的菜单列表，便于前端快速恢复（不强依赖）
+	Menus any `json:"menus,omitempty"`
 	jwt.RegisteredClaims
 }
 

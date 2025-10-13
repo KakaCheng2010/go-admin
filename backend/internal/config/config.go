@@ -40,8 +40,9 @@ type RedisConfig struct {
 }
 
 type JWTConfig struct {
-	Secret     string `mapstructure:"secret"`
-	ExpireTime int    `mapstructure:"expire_time"`
+	Secret              string `mapstructure:"secret"`
+	ExpireTime          int    `mapstructure:"expire_time"`
+	RefreshAheadSeconds int    `mapstructure:"refresh_ahead_seconds"`
 }
 
 type UploadConfig struct {
@@ -85,6 +86,8 @@ func Load() *Config {
 	viper.SetDefault("redis.db", 0)
 	viper.SetDefault("jwt.secret", "your-secret-key")
 	viper.SetDefault("jwt.expire_time", 24)
+	// 当 token 剩余有效期小于该阈值（秒）时，自动续期
+	viper.SetDefault("jwt.refresh_ahead_seconds", 900) // 15 分钟
 	viper.SetDefault("upload.avatar_path", "uploads/avatars/")
 	viper.SetDefault("upload.max_size", 5242880) // 5MB
 	viper.SetDefault("upload.allowed_types", []string{"image/jpeg", "image/png", "image/gif"})

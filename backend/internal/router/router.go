@@ -16,6 +16,9 @@ import (
 func SetupRouter(cfg *config.Config, db *gorm.DB, rdb *redis.Client) *gin.Engine {
 	r := gin.Default()
 
+	// 全局 CORS
+	r.Use(middleware.CORSMiddleware())
+
 	// 静态文件服务 - 提供上传文件的访问
 	r.Static("/uploads", "./uploads")
 
@@ -28,7 +31,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, rdb *redis.Client) *gin.Engine
 	dictService := sysservice.NewDictService(db)
 
 	// 初始化处理器
-	authHandler := api.NewAuthHandler(authService, rdb)
+	authHandler := api.NewAuthHandler(authService, menuService, rdb)
 	userHandler := sysapi.NewUserHandler(userService)
 	orgHandler := sysapi.NewOrganizationHandler(orgService)
 	roleHandler := sysapi.NewRoleHandler(roleService)
@@ -91,7 +94,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, rdb *redis.Client) *gin.Engine
 				menus.POST("", menuHandler.CreateMenu)
 				menus.GET("", menuHandler.ListMenus)
 				menus.GET("/tree", menuHandler.GetMenuTree)
-				menus.GET("/user", menuHandler.GetUserMenus) // 获取当前用户的菜单
+				// 已废弃：用户菜单改由登录响应返回
 				menus.GET("/:id", menuHandler.GetMenu)
 				menus.PUT("/:id", menuHandler.UpdateMenu)
 				menus.DELETE("/:id", menuHandler.DeleteMenu)

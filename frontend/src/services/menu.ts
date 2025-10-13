@@ -61,10 +61,7 @@ export const menuService = {
     return response.data.menus;
   },
 
-  getUserMenus: async (): Promise<Menu[]> => {
-    const response = await api.get('/menus/user');
-    return response.data.menus;
-  },
+  // 已废弃：用户菜单改由登录响应返回
 
   getMenu: async (id: string): Promise<Menu> => {
     const response = await api.get(`/menus/${id}`);

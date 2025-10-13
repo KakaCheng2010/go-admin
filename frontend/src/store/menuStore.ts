@@ -1,8 +1,9 @@
 import { create } from 'zustand';
-import { Menu, menuService } from '../services/menu';
+import { Menu } from '../services/menu';
 
 interface MenuState {
   userMenus: Menu[];
+  setMenus: (menus: Menu[]) => void;
   loadUserMenus: () => Promise<void>;
   clearMenus: () => void;
 }
@@ -14,6 +15,15 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5分钟缓存
 
 export const useMenuStore = create<MenuState>((set, get) => ({
   userMenus: [],
+  setMenus: (menus: Menu[]) => {
+    try {
+      localStorage.setItem(MENU_CACHE_KEY, JSON.stringify(menus));
+      localStorage.setItem(CACHE_EXPIRY_KEY, (Date.now() + CACHE_DURATION).toString());
+    } catch (error) {
+      console.warn('保存菜单缓存失败:', error);
+    }
+    set({ userMenus: menus });
+  },
 
   loadUserMenus: async () => {
     const state = get();
@@ -38,25 +48,8 @@ export const useMenuStore = create<MenuState>((set, get) => ({
       console.warn('读取菜单缓存失败:', error);
     }
 
-    console.log('开始从服务器加载菜单...');
-    try {
-      const menus = await menuService.getUserMenus();
-      console.log('菜单加载成功:', menus.length);
-      
-      // 缓存菜单数据
-      try {
-        localStorage.setItem(MENU_CACHE_KEY, JSON.stringify(menus));
-        localStorage.setItem(CACHE_EXPIRY_KEY, (Date.now() + CACHE_DURATION).toString());
-        console.log('菜单数据已缓存');
-      } catch (error) {
-        console.warn('保存菜单缓存失败:', error);
-      }
-      
-      set({ userMenus: menus });
-    } catch (error: any) {
-      console.error('加载菜单失败:', error);
-      set({ userMenus: [] });
-    }
+    // 不再从服务器加载，等待登录时由后端返回并通过 setMenus 注入
+    console.log('未命中缓存且未从服务器请求菜单，等待登录返回的菜单注入');
   },
 
   clearMenus: () => {
