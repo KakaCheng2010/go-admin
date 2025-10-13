@@ -12,6 +12,7 @@ export interface LoginResponse {
     username: string;
     email: string;
     real_name: string;
+    avatar: string;
   };
 }
 

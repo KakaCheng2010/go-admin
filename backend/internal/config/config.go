@@ -15,6 +15,7 @@ type Config struct {
 	Database DatabaseConfig `mapstructure:"database"`
 	Redis    RedisConfig    `mapstructure:"redis"`
 	JWT      JWTConfig      `mapstructure:"jwt"`
+	Upload   UploadConfig   `mapstructure:"upload"`
 }
 
 type ServerConfig struct {
@@ -41,6 +42,12 @@ type RedisConfig struct {
 type JWTConfig struct {
 	Secret     string `mapstructure:"secret"`
 	ExpireTime int    `mapstructure:"expire_time"`
+}
+
+type UploadConfig struct {
+	AvatarPath   string   `mapstructure:"avatar_path"`
+	MaxSize      int64    `mapstructure:"max_size"`
+	AllowedTypes []string `mapstructure:"allowed_types"`
 }
 
 func Load() *Config {
@@ -78,6 +85,9 @@ func Load() *Config {
 	viper.SetDefault("redis.db", 0)
 	viper.SetDefault("jwt.secret", "your-secret-key")
 	viper.SetDefault("jwt.expire_time", 24)
+	viper.SetDefault("upload.avatar_path", "uploads/avatars/")
+	viper.SetDefault("upload.max_size", 5242880) // 5MB
+	viper.SetDefault("upload.allowed_types", []string{"image/jpeg", "image/png", "image/gif"})
 
 	// 打印当前工作目录和搜索路径
 	if pwd, err := os.Getwd(); err == nil {

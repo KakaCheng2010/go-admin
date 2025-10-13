@@ -50,6 +50,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 			"username":  user.Username,
 			"email":     user.Email,
 			"real_name": user.RealName,
+			"avatar":    user.Avatar,
 		},
 	})
 }

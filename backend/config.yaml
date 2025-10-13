@@ -19,3 +19,8 @@ redis:
 jwt:
   secret: "your-secret-key-change-in-production"
   expire_time: 24
+
+upload:
+  avatar_path: "uploads/avatars/"
+  max_size: 5242880  # 5MB in bytes
+  allowed_types: ["image/jpeg", "image/png", "image/gif"]

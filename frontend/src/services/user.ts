@@ -31,6 +31,31 @@ export interface UpdateUserRequest {
   status?: string;
 }
 
+// 个人资料相关接口
+export interface Profile {
+  id: number;
+  username: string;
+  email?: string;
+  phone: string;
+  real_name: string;
+  avatar: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UpdateProfileRequest {
+  email?: string;
+  phone: string;
+  real_name: string;
+  avatar?: string;
+}
+
+export interface ChangePasswordRequest {
+  old_password: string;
+  new_password: string;
+}
+
 export interface UserListResponse {
   users: User[];
   total: number;
@@ -91,5 +116,33 @@ export const userService = {
 
   assignRoles: async (id: string, roleIds: string[]): Promise<void> => {
     await api.post(`/users/${id}/roles`, { role_ids: roleIds });
+  },
+
+  // 个人资料相关方法
+  getProfile: async (): Promise<Profile> => {
+    const response = await api.get('/profile');
+    return response.data;
+  },
+
+  updateProfile: async (data: UpdateProfileRequest): Promise<{ message: string; user: Profile }> => {
+    const response = await api.put('/profile', data);
+    return response.data;
+  },
+
+  changePassword: async (data: ChangePasswordRequest): Promise<{ code: number; success: boolean; message: string }> => {
+    const response = await api.post('/profile/change-password', data);
+    return response.data;
+  },
+
+  uploadAvatar: async (file: File): Promise<{ message: string; avatar: string }> => {
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    const response = await api.post('/profile/upload-avatar', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
   },
 };

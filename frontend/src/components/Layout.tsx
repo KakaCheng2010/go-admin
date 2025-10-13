@@ -66,6 +66,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const handleUserMenuClick = ({ key }: { key: string }) => {
     if (key === 'logout') {
       logout();
+    } else if (key === 'profile') {
+      navigate('/profile');
     }
   };
 
@@ -128,7 +130,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             placement="bottomRight"
           >
             <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-              <Avatar icon={<UserOutlined />} />
+              <Avatar 
+                src={(user as any)?.avatar} 
+                icon={<UserOutlined />} 
+              />
               <span style={{ marginLeft: 8 }}>{user?.real_name || user?.username}</span>
             </div>
           </Dropdown>

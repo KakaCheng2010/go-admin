@@ -5,6 +5,7 @@ import { useMenuStore } from '../store/menuStore';
 import Login from '../pages/Login';
 import Dashboard from '../pages/Dashboard';
 import DictItemList from '../pages/dict/DictItemList';
+import Profile from '../pages/user/Profile';
 import Layout from '../components/Layout';
 import { generateRoutes } from './dynamicRoutes';
 
@@ -46,6 +47,7 @@ const AppRoutes: React.FC = () => {
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<Profile />} />
      
         <Route path="/dict/items/:dictId" element={<DictItemList />} />
 

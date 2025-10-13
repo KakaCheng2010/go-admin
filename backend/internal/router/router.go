@@ -16,6 +16,9 @@ import (
 func SetupRouter(cfg *config.Config, db *gorm.DB, rdb *redis.Client) *gin.Engine {
 	r := gin.Default()
 
+	// 静态文件服务 - 提供上传文件的访问
+	r.Static("/uploads", "./uploads")
+
 	// 初始化服务
 	authService := service.NewAuthService(db)
 	userService := sysservice.NewUserService(db)
@@ -31,6 +34,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, rdb *redis.Client) *gin.Engine
 	roleHandler := sysapi.NewRoleHandler(roleService)
 	menuHandler := sysapi.NewMenuHandler(menuService)
 	dictHandler := sysapi.NewDictHandler(dictService)
+	profileHandler := sysapi.NewProfileHandler(userService)
 
 	// API路由组
 	v1 := r.Group("/api/v1")
@@ -116,6 +120,15 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, rdb *redis.Client) *gin.Engine
 				dictItems.GET("/:id", dictHandler.GetDictItem)
 				dictItems.PUT("/:id", dictHandler.UpdateDictItem)
 				dictItems.DELETE("/:id", dictHandler.DeleteDictItem)
+			}
+
+			// 个人资料管理
+			profile := authorized.Group("/profile")
+			{
+				profile.GET("", profileHandler.GetProfile)
+				profile.PUT("", profileHandler.UpdateProfile)
+				profile.POST("/change-password", profileHandler.ChangePassword)
+				profile.POST("/upload-avatar", profileHandler.UploadAvatar)
 			}
 		}
 	}
