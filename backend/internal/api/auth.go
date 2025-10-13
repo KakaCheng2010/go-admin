@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"go-admin/internal/config"
 	"go-admin/internal/service"
@@ -49,27 +50,24 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
+	// menus 随 token 一起返回
+	menus, err := h.menuService.GetUserMenus(user.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "获取用户菜单失败"})
+		return
+	}
+
 	// 将 token 写入 Redis 白名单，TTL 与 token 剩余有效期对齐
 	if h.rdb != nil {
 		if ttl, err := utils.RemainingTTL(token); err == nil {
 			key := "jwt:whitelist:" + token
-			if err := h.rdb.Set(c.Request.Context(), key, "1", ttl).Err(); err != nil {
+			b, _ := json.Marshal(gin.H{"menus": menus, "user": user})
+			if err := h.rdb.Set(c.Request.Context(), key, b, ttl).Err(); err != nil {
 				// 仅记录，不阻断登录
 				fmt.Printf("登录白名单写入失败: %v\n", err)
 			}
 		} else {
 			fmt.Printf("计算 token TTL 失败: %v\n", err)
-		}
-	}
-
-	// 查询用户可见菜单并随登录一起返回
-	var menus interface{}
-	if h.menuService != nil {
-		if ms, mErr := h.menuService.GetUserMenus(user.ID); mErr == nil {
-			menus = ms
-		} else {
-			// 查询失败不阻断登录，仅不返回菜单
-			fmt.Printf("获取用户菜单失败: %v\n", mErr)
 		}
 	}
 
@@ -98,8 +96,7 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 		return
 	}
 	if h.rdb != nil {
-		key := "jwt:whitelist:" + tokenString
-		if err := h.rdb.Del(c.Request.Context(), key).Err(); err != nil {
+		if err := h.rdb.Del(c.Request.Context(), "jwt:whitelist:"+tokenString).Err(); err != nil {
 			fmt.Printf("退出白名单删除失败: %v\n", err)
 		}
 	}

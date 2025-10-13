@@ -59,12 +59,14 @@ func AuthWhitelistMiddleware(rdb *redis.Client) gin.HandlerFunc {
 		if ttl, err := utils.RemainingTTL(tokenString); err == nil {
 			if int(ttl.Seconds()) <= cfg.JWT.RefreshAheadSeconds {
 				if newToken, err := utils.GenerateJWT(claims.UserID, claims.Username, cfg); err == nil {
-					// 刷新白名单：写入新 token，删除旧 token
+					// 刷新白名单 + 会话：迁移旧 token 的信息到新 token
 					if rdb != nil {
 						if newTTL, err := utils.RemainingTTL(newToken); err == nil {
-							newKey := "jwt:whitelist:" + newToken
-							_ = rdb.Set(c.Request.Context(), newKey, "1", newTTL).Err()
-							_ = rdb.Del(c.Request.Context(), whitelistKey).Err()
+							// 迁移会话：读取旧会话 JSON，写入新 token，并删旧会话
+							if sessionJSON, gErr := rdb.Get(c.Request.Context(), "jwt:whitelist:"+tokenString).Result(); gErr == nil {
+								_ = rdb.Set(c.Request.Context(), "jwt:whitelist:"+newToken, sessionJSON, newTTL).Err()
+								_ = rdb.Del(c.Request.Context(), "jwt:whitelist:"+tokenString).Err()
+							}
 						}
 					}
 					// 通过响应头下发新 token

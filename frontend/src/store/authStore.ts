@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { authService } from '../services/auth';
 
 interface User {
   id: number;
@@ -15,7 +16,7 @@ interface AuthState {
   token: string | null;
   login: (token: string, user: User) => void;
   setToken: (token: string) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
   updateUser: (user: User) => void;
 }
 
@@ -31,7 +32,12 @@ export const useAuthStore = create<AuthState>()(
       setToken: (token: string) => {
         set({ token });
       },
-      logout: () => {
+      logout: async () => {
+        try {
+          await authService.logout();
+        } catch (error) {
+          console.warn('调用退出登录接口失败:', error);
+        }
         set({ isAuthenticated: false, token: null, user: null });
       },
       updateUser: (user: User) => {
