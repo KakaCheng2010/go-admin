@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/viper"
 )
@@ -45,10 +46,22 @@ type JWTConfig struct {
 func Load() *Config {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("./configs")
-	viper.AddConfigPath(".")
-	viper.AddConfigPath("../configs")    // 添加相对路径
-	viper.AddConfigPath("../../configs") // 添加更多可能的路径
+	// 获取可执行文件所在目录
+	execPath, err := os.Executable()
+	if err == nil {
+		execDir := filepath.Dir(execPath)
+		// 打包后的配置文件查找路径
+		viper.AddConfigPath(execDir)                              // 可执行文件同目录
+		viper.AddConfigPath(filepath.Join(execDir, "configs"))    // 可执行文件同目录下的configs文件夹
+		viper.AddConfigPath(filepath.Join(execDir, ".."))         // 可执行文件上级目录
+		viper.AddConfigPath(filepath.Join(execDir, "../configs")) // 可执行文件上级目录下的configs文件夹
+	}
+
+	// 开发环境的配置文件查找路径
+	viper.AddConfigPath(".")         // 当前工作目录
+	viper.AddConfigPath("./configs") // 当前目录下的configs文件夹
+	viper.AddConfigPath("../")       // 上级目录
+	viper.AddConfigPath("../../")    // 上两级目录
 
 	// 设置默认值
 	viper.SetDefault("server.port", "8080")
@@ -70,8 +83,25 @@ func Load() *Config {
 	if pwd, err := os.Getwd(); err == nil {
 		fmt.Println("当前工作目录:", pwd)
 	}
+	if execPath, err := os.Executable(); err == nil {
+		fmt.Println("可执行文件路径:", execPath)
+		fmt.Println("可执行文件目录:", filepath.Dir(execPath))
+	}
 	fmt.Println("搜索配置文件路径:")
-	for _, path := range []string{"./configs", ".", "../configs", "../../configs"} {
+	// 显示配置的搜索路径
+	searchPaths := []string{
+		".", "./configs", "../", "../../",
+	}
+	if execPath, err := os.Executable(); err == nil {
+		execDir := filepath.Dir(execPath)
+		searchPaths = append([]string{
+			execDir,
+			filepath.Join(execDir, "configs"),
+			filepath.Join(execDir, ".."),
+			filepath.Join(execDir, "../configs"),
+		}, searchPaths...)
+	}
+	for _, path := range searchPaths {
 		fmt.Printf("  - %s\n", path)
 	}
 

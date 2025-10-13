@@ -67,6 +67,36 @@ go-admin/
 - Docker & Docker Compose
 - Git
 
+### 配置文件
+
+项目配置文件位于项目根目录的 `config.yaml`，包含以下配置项：
+
+```yaml
+server:
+  port: "8080"        # 服务器端口
+  mode: "debug"       # 运行模式
+
+database:
+  host: "localhost"   # 数据库主机
+  port: 5432          # 数据库端口
+  user: "postgres"    # 数据库用户名
+  password: "password" # 数据库密码
+  dbname: "go_admin"  # 数据库名称
+  sslmode: "disable"  # SSL模式
+
+redis:
+  host: "localhost"   # Redis主机
+  port: 6379         # Redis端口
+  password: ""       # Redis密码
+  db: 0             # Redis数据库
+
+jwt:
+  secret: "your-secret-key" # JWT密钥
+  expire_time: 24           # 过期时间(小时)
+```
+
+**注意**: 请根据您的实际环境修改配置文件中的数据库和Redis连接信息。
+
 ### 一键启动（推荐）
 
 **Linux/Mac:**
