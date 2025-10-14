@@ -33,7 +33,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import OrganizationTree from '../../components/OrganizationTree';
 import { useDict } from '../../hooks/useDict';
-
+import { usePermission } from '../../utils/permission';
  
 
 const UserManagement: React.FC = () => {
@@ -61,6 +61,11 @@ const UserManagement: React.FC = () => {
   const [roles, setRoles] = useState<Role[]>([]);
   const [selectedRoleKeys, setSelectedRoleKeys] = useState<React.Key[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  //操作状态
+  const canDelete = usePermission('user:delete');
+  const canCreate = usePermission('user:create');
+
 
   // 检查认证状态
   useEffect(() => {
@@ -410,13 +415,13 @@ const UserManagement: React.FC = () => {
             okText="确定"
             cancelText="取消"
           >
-            <Button 
+          {canDelete && <Button 
               type="link" 
               size="small" 
               danger 
               icon={<DeleteOutlined />}
               title="删除"
-            />
+            />}
           </Popconfirm>
         </Space>
       ),
