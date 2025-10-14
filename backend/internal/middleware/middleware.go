@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"go-admin/internal/config"
-	"go-admin/internal/sys/model"
-	"go-admin/internal/utils"
+	"siqian-admin/internal/config"
+	"siqian-admin/internal/sys/model"
+	"siqian-admin/internal/utils"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"

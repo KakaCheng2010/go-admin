@@ -2,7 +2,7 @@ package utils
 
 import (
 	"errors"
-	"go-admin/internal/config"
+	"siqian-admin/internal/config"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"

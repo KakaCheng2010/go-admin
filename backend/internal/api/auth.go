@@ -3,11 +3,11 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"go-admin/internal/config"
-	"go-admin/internal/service"
-	sysservice "go-admin/internal/sys/service"
-	"go-admin/internal/utils"
 	"net/http"
+	"siqian-admin/internal/config"
+	"siqian-admin/internal/service"
+	sysservice "siqian-admin/internal/sys/service"
+	"siqian-admin/internal/utils"
 	"strings"
 
 	"github.com/gin-gonic/gin"

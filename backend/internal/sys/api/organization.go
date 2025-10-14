@@ -2,10 +2,10 @@ package api
 
 import (
 	"fmt"
-	"go-admin/internal/sys/model"
-	"go-admin/internal/sys/service"
-	"go-admin/internal/utils"
 	"net/http"
+	"siqian-admin/internal/sys/model"
+	"siqian-admin/internal/sys/service"
+	"siqian-admin/internal/utils"
 	"strconv"
 
 	"github.com/gin-gonic/gin"

@@ -1,12 +1,12 @@
 package router
 
 import (
-	"go-admin/internal/api"
-	"go-admin/internal/config"
-	"go-admin/internal/middleware"
-	"go-admin/internal/service"
-	sysapi "go-admin/internal/sys/api"
-	sysservice "go-admin/internal/sys/service"
+	"siqian-admin/internal/api"
+	"siqian-admin/internal/config"
+	"siqian-admin/internal/middleware"
+	"siqian-admin/internal/service"
+	sysapi "siqian-admin/internal/sys/api"
+	sysservice "siqian-admin/internal/sys/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"

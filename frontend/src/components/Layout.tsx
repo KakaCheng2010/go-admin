@@ -92,7 +92,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           fontWeight: 'bold',
           color: '#ffffff',
         }}>
-          {collapsed ? 'GA' : 'Go-Admin'}
+          {collapsed ? 'GA' : 'siqian-admin'}
         </div>
         <Menu
           theme="dark"

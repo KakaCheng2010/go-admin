@@ -1,6 +1,6 @@
-# Go-Admin 开发框架
+# siqian-admin 开发框架
 
-基于 React + Go + PostgreSQL + Redis 的现代化管理系统开发框架
+基于 React + Go + PostgreSQL + Redis 的管理系统开发框架
 
 ## 🚀 技术栈
 
@@ -42,7 +42,7 @@
 ## 🏗️ 项目结构
 
 ```
-go-admin/
+siqian-admin/
 ├── backend/                 # Go后端
 │   ├── cmd/                # 应用入口
 │   │   └── main.go
@@ -134,7 +134,7 @@ npm start
 
 - **前端**: http://localhost:3000
 - **后端API**: http://localhost:8080
-- **默认账户**: admin / admin123
+- **默认账户**: admin / 123456
 
 ## 🛠️ 新功能开发指南
 
@@ -180,7 +180,7 @@ func (Product) TableName() string {
 package service
 
 import (
-    "go-admin/internal/sys/model"
+    "siqian-admin/internal/sys/model"
     "gorm.io/gorm"
 )
 
@@ -233,8 +233,8 @@ func (s *ProductService) ListProducts(page, pageSize int) ([]model.Product, int6
 package api
 
 import (
-    "go-admin/internal/sys/model"
-    "go-admin/internal/sys/service"
+    "siqian-admin/internal/sys/model"
+    "siqian-admin/internal/sys/service"
     "net/http"
     "strconv"
     "github.com/gin-gonic/gin"
@@ -934,4 +934,4 @@ const MyComponent: React.FC = () => {
 
 本项目采用Apache许可证 - 查看[LICENSE](LICENSE)文件了解详情。
 
-**Go-Admin** - 让管理系统开发更简单、更高效！
+**siqian-admin** - 让管理系统开发更简单、更高效！

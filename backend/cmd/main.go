@@ -1,11 +1,11 @@
 package main
 
 import (
-	"go-admin/internal/config"
-	"go-admin/internal/database"
-	"go-admin/internal/middleware"
-	"go-admin/internal/router"
 	"log"
+	"siqian-admin/internal/config"
+	"siqian-admin/internal/database"
+	"siqian-admin/internal/middleware"
+	"siqian-admin/internal/router"
 )
 
 func main() {

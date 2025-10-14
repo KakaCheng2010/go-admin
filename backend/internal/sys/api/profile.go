@@ -1,10 +1,10 @@
 package api
 
 import (
-	"go-admin/internal/config"
-	"go-admin/internal/sys/service"
-	"go-admin/internal/utils"
 	"net/http"
+	"siqian-admin/internal/config"
+	"siqian-admin/internal/sys/service"
+	"siqian-admin/internal/utils"
 	"strconv"
 	"strings"
 

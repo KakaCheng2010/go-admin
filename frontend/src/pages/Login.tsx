@@ -48,7 +48,7 @@ const Login: React.FC = () => {
       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     }}>
       <Card
-        title="Go-Admin 管理系统"
+        title="siqian-admin 管理系统"
         style={{ width: 400 }}
         styles={{
           header: { textAlign: 'center', fontSize: '24px', fontWeight: 'bold' }

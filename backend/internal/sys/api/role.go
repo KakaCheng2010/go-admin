@@ -1,9 +1,9 @@
 package api
 
 import (
-	"go-admin/internal/sys/model"
-	"go-admin/internal/sys/service"
 	"net/http"
+	"siqian-admin/internal/sys/model"
+	"siqian-admin/internal/sys/service"
 	"strconv"
 
 	"github.com/gin-gonic/gin"

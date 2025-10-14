@@ -1,8 +1,8 @@
 package service
 
 import (
-	"go-admin/internal/sys/model"
-	"go-admin/internal/utils"
+	"siqian-admin/internal/sys/model"
+	"siqian-admin/internal/utils"
 	"strconv"
 
 	"gorm.io/gorm"

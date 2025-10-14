@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	sysservice "go-admin/internal/sys/service"
+	sysservice "siqian-admin/internal/sys/service"
 
 	"github.com/gin-gonic/gin"
 )
