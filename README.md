@@ -87,6 +87,7 @@ siqian-admin/
 
 ### 配置文件
 
+数据库文件位于 `backend/scripts/siqian-admin.sql`
 项目配置文件位于 `backend/config.yaml`：
 
 ```yaml
@@ -127,7 +128,7 @@ go run cmd/main.go
 # 3. 启动前端
 cd frontend
 npm install
-npm start
+npm run dev
 ```
 
 ### 访问地址
