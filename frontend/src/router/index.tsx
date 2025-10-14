@@ -11,6 +11,7 @@ import { generateRoutes } from './dynamicRoutes';
 
 // 临时导入dict页面用于测试
 import DictList from '../pages/dict/DictList';
+import AccessLogList from '../pages/logs/AccessLogList';
 
 const AppRoutes: React.FC = () => {
   const { isAuthenticated, user } = useAuthStore();
@@ -48,6 +49,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/logs" element={<AccessLogList />} />
      
         <Route path="/dict/items/:dictId" element={<DictItemList />} />
 

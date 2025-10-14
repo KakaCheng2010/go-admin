@@ -40,6 +40,7 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 		&model.UserRole{},
 		&model.RoleMenu{},
 		&model.UserOrganization{},
+		&model.AccessLog{},
 	); err != nil {
 		return nil, err
 	}

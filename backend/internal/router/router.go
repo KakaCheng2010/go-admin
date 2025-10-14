@@ -19,6 +19,9 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, rdb *redis.Client) *gin.Engine
 	// 全局 CORS
 	r.Use(middleware.CORSMiddleware())
 
+	// 全局请求访问日志
+	r.Use(middleware.RequestLogMiddleware(db))
+
 	// 静态文件服务 - 提供上传文件的访问
 	r.Static("/uploads", "./uploads")
 
@@ -29,6 +32,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, rdb *redis.Client) *gin.Engine
 	roleService := sysservice.NewRoleService(db)
 	menuService := sysservice.NewMenuService(db)
 	dictService := sysservice.NewDictService(db)
+	accessLogService := sysservice.NewAccessLogService(db)
 
 	// 初始化处理器
 	authHandler := api.NewAuthHandler(authService, menuService, rdb)
@@ -38,6 +42,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, rdb *redis.Client) *gin.Engine
 	menuHandler := sysapi.NewMenuHandler(menuService)
 	dictHandler := sysapi.NewDictHandler(dictService)
 	profileHandler := sysapi.NewProfileHandler(userService)
+	accessLogHandler := sysapi.NewAccessLogHandler(accessLogService)
 
 	// API路由组
 	v1 := r.Group("/api/v1")
@@ -57,6 +62,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, rdb *redis.Client) *gin.Engine
 			users := authorized.Group("/users")
 			{
 				users.POST("", userHandler.CreateUser)
+				// 权限控制示范
 				users.GET("", middleware.AuthMiddleware(rdb, []string{"user:list"}), userHandler.ListUsers)
 				users.GET("/:id", userHandler.GetUser)
 				users.PUT("/:id", userHandler.UpdateUser)
@@ -131,6 +137,13 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, rdb *redis.Client) *gin.Engine
 				profile.PUT("", profileHandler.UpdateProfile)
 				profile.POST("/change-password", profileHandler.ChangePassword)
 				profile.POST("/upload-avatar", profileHandler.UploadAvatar)
+			}
+
+			// 访问日志
+			logs := authorized.Group("/logs")
+			{
+				logs.GET("", accessLogHandler.List)
+				logs.DELETE("/batch", middleware.AuthMiddleware(rdb, []string{"log:delete"}), accessLogHandler.BatchDelete)
 			}
 		}
 	}
