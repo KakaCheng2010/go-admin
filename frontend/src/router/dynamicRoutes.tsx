@@ -3,6 +3,32 @@ import { Route } from 'react-router-dom';
 import { Menu } from '../services/menu';
 import IconDisplay from '../components/IconDisplay';
 
+// 预定义所有可能的页面组件导入
+const componentMap: Record<string, () => Promise<any>> = {
+  // 用户管理相关
+  'user/UserManagement': () => import('../pages/user/UserManagement'),
+  'user/Profile': () => import('../pages/user/Profile'),
+  
+  // 角色管理
+  'role/RoleManagement': () => import('../pages/role/RoleManagement'),
+  
+  // 组织管理
+  'organization/OrganizationManagement': () => import('../pages/organization/OrganizationManagement'),
+  
+  // 菜单管理
+  'menu/MenuManagement': () => import('../pages/menu/MenuManagement'),
+  
+  // 字典管理
+  'dict/DictList': () => import('../pages/dict/DictList'),
+  'dict/DictItemList': () => import('../pages/dict/DictItemList'),
+  
+  // 日志管理
+  'log/LogManagement': () => import('../pages/log/LogManagement'),
+  
+  // 仪表板
+  'Dashboard': () => import('../pages/Dashboard'),
+};
+
 // 动态组件加载器
 const dynamicComponentLoader = (componentPath: string): React.ComponentType => {
   return lazy(() => {
@@ -14,26 +40,27 @@ const dynamicComponentLoader = (componentPath: string): React.ComponentType => {
       importPath = importPath.slice(1);
     }
     
-    // 确保路径以正确的格式结尾
-    if (!importPath.endsWith('.tsx') && !importPath.endsWith('.ts')) {
-      importPath = importPath + '.tsx';
+    // 移除文件扩展名
+    if (importPath.endsWith('.tsx') || importPath.endsWith('.ts')) {
+      importPath = importPath.replace(/\.(tsx|ts)$/, '');
     }
     
-    // 构建完整的导入路径
-    const fullPath = `../pages/${importPath}`;
+    // 查找对应的导入函数
+    const importFn = componentMap[importPath];
+    if (importFn) {
+      return importFn();
+    }
     
-    return import(fullPath).catch(error => {
-      console.warn(`组件加载失败: ${fullPath}`, error);
-      // 返回一个默认的错误组件
-      return {
-        default: () => (
-          <div style={{ padding: '20px', textAlign: 'center' }}>
-            <h3>组件加载失败</h3>
-            <p>无法加载组件: {componentPath}</p>
-            <p>请检查组件路径是否正确</p>
-          </div>
-        )
-      };
+    // 如果找不到，返回错误组件
+    console.warn(`组件加载失败: ${componentPath}`);
+    return Promise.resolve({
+      default: () => (
+        <div style={{ padding: '20px', textAlign: 'center' }}>
+          <h3>组件加载失败</h3>
+          <p>无法加载组件: {componentPath}</p>
+          <p>请检查组件路径是否正确</p>
+        </div>
+      )
     });
   });
 };
